@@ -1,0 +1,2280 @@
+[{
+  "_id": {
+    "$oid": "69f3b86e036362344ab59822"
+  },
+  "name": "migrateHospitalsToSF",
+  "ack": {
+    "type": "POLL",
+    "successRecords": "sfHospitalSuccessFailureCombinedRecords.successRecords",
+    "failedRecords": "sfHospitalSuccessFailureCombinedRecords.failedRecords",
+    "steps": [
+      {
+        "name": "salesForceJWT"
+      },
+      {
+        "name": "salesForceAccessToken"
+      },
+      {
+        "name": "salesforceJobInfo",
+        "postExecution": [
+          {
+            "conditions": [
+              {
+                "key": "salesforceJobInfo.jobStatus",
+                "operator": "equals",
+                "value": "JobComplete"
+              }
+            ],
+            "effect": {
+              "step": "next"
+            }
+          },
+          {
+            "conditions": [
+              {
+                "key": "salesforceJobInfo.jobStatus",
+                "operator": "notEquals",
+                "value": "JobComplete"
+              }
+            ],
+            "effect": {
+              "step": "restartSteps"
+            }
+          }
+        ]
+      },
+      {
+        "name": "salesforceSuccessEntries"
+      },
+      {
+        "name": "salesforceFailedEntries"
+      },
+      {
+        "name": "sfHospitalSuccessRecordsJson"
+      },
+      {
+        "name": "sfHospitalFailedRecordsJson"
+      },
+      {
+        "name": "sfHospitalSuccessFailureCombinedRecords"
+      }
+    ]
+  },
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T20:15:42.508Z"
+  },
+  "entity": "hospital",
+  "postComplete": null,
+  "process": [
+    {
+      "name": "transformSFHospitals"
+    }
+  ],
+  "read": {
+    "type": "API",
+    "parallelThreads": 1,
+    "maxRetryCount": 3,
+    "failureStrategy": "IGNORE",
+    "params": {
+      "request": {
+        "endpoint": {
+          "basePath": "databricks.basePath",
+          "url": "/api/2.0/sql/statements/",
+          "method": "POST"
+        },
+        "headers": {
+          "Authorization": "${AUTHORIZATION}"
+        },
+        "body": [
+          {
+            "name": "statement",
+            "value": "select shaiHospitalId,hospitalName,hospitalAddr1,hospitalCityId,hospitalPincode,hospitalContact,hospitalIsActive,hospitalIsPpn,hospitalState,hospitalRegistrationCode,rohiniCode,cpuCode as zone,isNetworkHospital,empanelmentEndDate,isBlacklisted,isCaution,specialityType,bedCount,hospitalPanNumber,SUSPICIOUS_FLAG as hospitalFlag_falg,SUSPICIOUS_DATE as hospitalFlag_date,SUSPICIOUS_REASON as hospitalFlag_reason,PRATHAM_FLAG as prathamFlag,HOSPITAL_GRADE as hospitalGrade,SOC_FLAG as socFlag,NETWORK_HOSP_TYPE as networkHospType,hospitalAddr1 as landmark from uat.matrix_int.ma_hospitals where Reported_Date >= '2025-10-01' ORDER BY shaiHospitalId LIMIT ${BATCH_SIZE} OFFSET ${OFFSET}",
+            "type": "dynamic"
+          },
+          {
+            "name": "warehouse_id",
+            "value": "9383dfdb4b6d2adf",
+            "type": "static",
+            "mapping": {}
+          },
+          {
+            "name": "wait_timeout",
+            "value": "50s",
+            "type": "static"
+          }
+        ],
+        "variables": [
+          {
+            "name": "CHANGE_DATE",
+            "type": "implementation",
+            "value": "getYesterday"
+          },
+          {
+            "name": "BATCH_SIZE",
+            "type": "static",
+            "value": 1000
+          },
+          {
+            "name": "OFFSET",
+            "type": "static",
+            "value": 0
+          },
+          {
+            "name": "AUTHORIZATION",
+            "type": "env",
+            "value": "databricks.token"
+          }
+        ]
+      },
+      "response": {
+        "params": [
+          {
+            "key": "columns",
+            "value": "manifest.schema.columns"
+          },
+          {
+            "key": "data",
+            "value": "result.data_array"
+          }
+        ]
+      },
+      "pagination": {
+        "type": "offset",
+        "offsetVariable": "OFFSET",
+        "batchSize": 1000,
+        "hasNext": "data"
+      }
+    }
+  },
+  "sink": {
+    "maxRetryCount": 3,
+    "batchSize": 1000,
+    "referenceId": {
+      "type": "context",
+      "value": "salesforceBatchId.referenceId"
+    },
+    "steps": [
+      {
+        "name": "salesForceJWT"
+      },
+      {
+        "name": "sfHospitalFieldTransformations"
+      },
+      {
+        "name": "salesForceAccessToken"
+      },
+      {
+        "name": "salesforceBatchId"
+      },
+      {
+        "name": "generateSFHospitalCSV"
+      },
+      {
+        "name": "salesforceUploadHospital"
+      },
+      {
+        "name": "salesforceCloseBatch"
+      }
+    ]
+  },
+  "strategy": "SIMULTANEOUS_READ_WRITE",
+  "updatedAt": {
+    "$date": "2026-07-09T06:57:00.389Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3c248036362344abdc3df"
+  },
+  "name": "migrateSalesManagersToSF",
+  "ack": {
+    "type": "POLL",
+    "successRecords": "sfSalesManagerSuccessFailureCombinedRecords.successRecords",
+    "failedRecords": "sfSalesManagerSuccessFailureCombinedRecords.failedRecords",
+    "steps": [
+      {
+        "name": "salesForceJWT"
+      },
+      {
+        "name": "salesForceAccessToken"
+      },
+      {
+        "name": "salesforceJobInfo",
+        "postExecution": [
+          {
+            "conditions": [
+              {
+                "key": "salesforceJobInfo.jobStatus",
+                "operator": "in",
+                "value": [
+                  "JobComplete",
+                  "Failed"
+                ]
+              }
+            ],
+            "effect": {
+              "step": "next"
+            }
+          },
+          {
+            "conditions": [
+              {
+                "key": "salesforceJobInfo.jobStatus",
+                "operator": "notIn",
+                "value": [
+                  "JobComplete",
+                  "Failed"
+                ]
+              }
+            ],
+            "effect": {
+              "step": "restartSteps"
+            }
+          }
+        ]
+      },
+      {
+        "name": "salesforceSuccessEntries"
+      },
+      {
+        "name": "salesforceFailedEntries"
+      },
+      {
+        "name": "sfSalesManagerSuccessRecordsJson"
+      },
+      {
+        "name": "sfSalesManagerFailedRecordsJson"
+      },
+      {
+        "name": "sfSalesManagerSuccessFailureCombinedRecords"
+      }
+    ]
+  },
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T20:57:44.414Z"
+  },
+  "entity": "salesManager",
+  "postComplete": null,
+  "process": [
+    {
+      "name": "transformSFSalesManagers"
+    }
+  ],
+  "read": {
+    "type": "API",
+    "parallelThreads": 1,
+    "maxRetryCount": 3,
+    "failureStrategy": "IGNORE",
+    "params": {
+      "request": {
+        "endpoint": {
+          "basePath": "databricks.basePath",
+          "url": "/api/2.0/sql/statements/",
+          "method": "POST"
+        },
+        "headers": {
+          "Authorization": "${AUTHORIZATION}"
+        },
+        "body": [
+          {
+            "name": "statement",
+            "value": "SELECT * FROM uat.salesforce_int.sf_sales_manager where change_date >= '2025-10-01' ORDER BY FULLFILLER_CODE LIMIT ${BATCH_SIZE} OFFSET ${OFFSET}",
+            "type": "dynamic"
+          },
+          {
+            "name": "warehouse_id",
+            "value": "9383dfdb4b6d2adf",
+            "type": "static",
+            "mapping": {}
+          },
+          {
+            "name": "wait_timeout",
+            "value": "50s",
+            "type": "static"
+          }
+        ],
+        "variables": [
+          {
+            "name": "CHANGE_DATE",
+            "type": "implementation",
+            "value": "getYesterday"
+          },
+          {
+            "name": "BATCH_SIZE",
+            "type": "static",
+            "value": 1000
+          },
+          {
+            "name": "OFFSET",
+            "type": "static",
+            "value": 10
+          },
+          {
+            "name": "AUTHORIZATION",
+            "type": "env",
+            "value": "databricks.token"
+          }
+        ]
+      },
+      "response": {
+        "params": [
+          {
+            "key": "columns",
+            "value": "manifest.schema.columns"
+          },
+          {
+            "key": "data",
+            "value": "result.data_array"
+          }
+        ]
+      },
+      "pagination": {
+        "type": "offset",
+        "offsetVariable": "OFFSET",
+        "batchSize": 1000,
+        "hasNext": "data"
+      }
+    }
+  },
+  "sink": {
+    "maxRetryCount": 3,
+    "batchSize": 5000,
+    "referenceId": {
+      "type": "context",
+      "value": "salesforceBatchId.referenceId"
+    },
+    "steps": [
+      {
+        "name": "sfDecryptSalesManagerFields"
+      },
+      {
+        "name": "sfSalesManagerFieldTransformations"
+      },
+      {
+        "name": "salesForceJWT"
+      },
+      {
+        "name": "salesForceAccessToken"
+      },
+      {
+        "name": "salesforceBatchId"
+      },
+      {
+        "name": "generateSFSalesManagerCSV"
+      },
+      {
+        "name": "salesforceUploadSalesManagers"
+      },
+      {
+        "name": "salesforceCloseBatch"
+      }
+    ]
+  },
+  "strategy": "SIMULTANEOUS_READ_WRITE",
+  "updatedAt": {
+    "$date": "2026-04-30T20:57:44.414Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6a0f057b764e42ca6e7a21e2"
+  },
+  "name": "migrateRenewalQuote",
+  "ack": {},
+  "active": true,
+  "createdAt": {
+    "$date": "2026-05-21T13:15:39.191Z"
+  },
+  "entity": "renewalQuote",
+  "postComplete": null,
+  "process": [
+    {
+      "name": "transformRenewalQuoteZoho"
+    }
+  ],
+  "read": {
+    "type": "API",
+    "parallelThreads": 1,
+    "maxRetryCount": 3,
+    "failureStrategy": "IGNORE",
+    "params": {
+      "request": {
+        "endpoint": {
+          "basePath": "databricks.basepath",
+          "url": "/api/2.0/sql/statements/",
+          "method": "POST"
+        },
+        "headers": {
+          "Content-Type": "application/json",
+          "Authorization": "${TOKEN}"
+        },
+        "body": [
+          {
+            "name": "statement",
+            "value": "select SEQ_NUM,INTERMEDIATOR_EMAIL_E,NUMBER_OF_YEAR,PROPOSER_EMAIL_ID_E,POLICY_FROM_DATE,GRACE_PERIOD_END_DATE,PREMIA_CONVERTED_POLICY_TOTAL_PREMIUM,SALES_MANAGER_PHONE_E,INSTALLMENT_PREMIUM_AMOUNT,OFFICE_CODE,PRODUCT_CODE,BRANCH_MANAGER_NAME,PAYMENT_DATE,INSTALLMENT_TAX,SOURCE,PROPOSAL_TYPE,PREVIOUS_POLICY_NUMBER,CURRENCY_POLICY_PREMIUM_GST,RENEWAL_PAYMENT_TYPE,INTERMEDIARY_CODE,FULFILLER_CODE,CURRENT_PREMIUM_TAX,PIN_CODE,POLICY_CONVERTED_DATE,PREMIA_CURRENT_POLICY_SUM_INSURED,RENEWAL_STATUS,INSTALLMENT_TOTAL_PREMIUM,NCB,INTERMEDIARY_NAME,BRANCH_MANAGER_PH_NO,ENVIRONMENT,BRANCH_MANAGER_CODE,INTERMEDIATOR_PHONE_E,SECONDARY_EMAIL,EMI_POLICY,DIVISON_CODE,RECORD_RECEIVED_FROM_SYSTEM,PROPOSER_CONTACT_NO_E,RENEWAL_LOCATION,WORKFLOW_TRIGGER,PAYMENT_STATUS,RENEWAL_ID,POLICY_TO_DATE,RENEWAL_POLICY_REF_NO,POLICY_RENEWED,PREMIA_CURRENT_POLICY_NO,PAYMENT_MODE,INSTALLMENT_YEAR,SUM_INSURED,CURRENT_POLICY_PREMIUM_TOTAL_AMOUNT,PREMIA_CONVERTED_PREMIUM_AMOUNT,CONTACT_NAME,PREMIA_CONVERTED_POLICY_NO,PREMIUM_AMOUNT,CLAIM_STATUS,PREMIA_CONTACT_CODE,CURRENT_POLICY_PREMIUM_AMOUNT,CURRENT_POLICY_NUMBER,PRODUCT_NAME,CURRENT_PREMIUM_TOTAL,PREMIA_CONVERTED_POLICY_GST,RENEWAL_ADDRESS3,RENEWAL_ADDRESS1,NCD_ISSUED,SALES_MANAGER_NAME,NO_OF_INSTALLMENT,RENEWAL_ADDRESS2,UPSELL_SUM_INSURED_1,UPSELL_PREMIUM_1,UPSELL_GST_1,UPSELL_TOTAL_1,UPSELL_SUM_INSURED_2,UPSELL_PREMIUM_2,UPSELL_GST_2,UPSELL_TOTAL_2,UPSELL_SUM_INSURED_3,UPSELL_PREMIUM_3,UPSELL_GST_3,UPSELL_TOTAL_3,UPSELL_SUM_INSURED_4,UPSELL_PREMIUM_4,UPSELL_GST_4,UPSELL_TOTAL_4,UPSELL_SUM_INSURED_5,UPSELL_PREMIUM_5,UPSELL_GST_5,UPSELL_TOTAL_5,REPORTED_DATE,LOAD_TIMESTAMP FROM uat.reporting_tables.agg_renewal_quote_push_crm where SEQ_NUM >= ${CURSOR} order by SEQ_NUM asc limit ${BATCH_SIZE};",
+            "type": "dynamic"
+          },
+          {
+            "name": "warehouse_id",
+            "value": "9383dfdb4b6d2adf",
+            "type": "static"
+          },
+          {
+            "name": "wait_timeout",
+            "value": "50s",
+            "type": "static"
+          }
+        ],
+        "variables": [
+          {
+            "name": "DATE",
+            "type": "implementation",
+            "value": "getToday"
+          },
+          {
+            "name": "BATCH_SIZE",
+            "type": "static",
+            "value": 100
+          },
+          {
+            "name": "OFFSET",
+            "type": "static",
+            "value": 0
+          },
+          {
+            "name": "TOKEN",
+            "type": "env",
+            "value": "databricks.token"
+          }
+        ]
+      },
+      "response": {
+        "params": [
+          {
+            "key": "columns",
+            "value": "manifest.schema.columns"
+          },
+          {
+            "key": "data",
+            "value": "result.data_array"
+          }
+        ]
+      },
+      "pagination": {
+        "type": "cursor",
+        "offsetVariable": "CURSOR",
+        "batchSize": 100,
+        "hasNext": "data",
+        "nextCursorPath": "$.data[-1][0]"
+      }
+    }
+  },
+  "sink": {
+    "maxRetryCount": 3,
+    "batchSize": 1,
+    "steps": [
+      {
+        "name": "zohoDecryptRenewalQuoteFields"
+      },
+      {
+        "name": "flattenRenewalQuoteZoho"
+      },
+      {
+        "name": "zohoAccessToken"
+      },
+      {
+        "name": "zohoUploadRenewalQuote"
+      }
+    ]
+  },
+  "strategy": "READ_FIRST",
+  "updatedAt": {
+    "$date": "2026-05-26T07:00:08.716Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6a14924c05f36167e75af313"
+  },
+  "name": "migrateCustomersToSF",
+  "ack": {
+    "type": "POLL",
+    "successRecords": "sfCustomerSuccessFailureCombinedRecords.successRecords",
+    "failedRecords": "sfCustomerSuccessFailureCombinedRecords.failedRecords",
+    "steps": [
+      {
+        "name": "salesForceJWT"
+      },
+      {
+        "name": "salesForceAccessToken"
+      },
+      {
+        "name": "salesforceJobInfo",
+        "postExecution": [
+          {
+            "conditions": [
+              {
+                "key": "salesforceJobInfo.jobStatus",
+                "operator": "equals",
+                "value": "UploadComplete"
+              }
+            ],
+            "effect": {
+              "step": "restartSteps"
+            }
+          },
+          {
+            "conditions": [
+              {
+                "key": "salesforceJobInfo.jobStatus",
+                "operator": "equals",
+                "value": "InProgress"
+              }
+            ],
+            "effect": {
+              "step": "restartSteps"
+            }
+          },
+          {
+            "conditions": [
+              {
+                "key": "salesforceJobInfo.jobStatus",
+                "operator": "equals",
+                "value": "JobComplete"
+              }
+            ],
+            "effect": {
+              "step": "next"
+            }
+          },
+          {
+            "conditions": [
+              {
+                "key": "salesforceJobInfo.jobStatus",
+                "operator": "notEquals",
+                "value": "JobComplete"
+              }
+            ],
+            "effect": {
+              "step": "next"
+            }
+          }
+        ]
+      },
+      {
+        "name": "salesforceSuccessEntries"
+      },
+      {
+        "name": "salesforceFailedEntries"
+      },
+      {
+        "name": "sfCustomerSuccessRecordsJson"
+      },
+      {
+        "name": "sfCustomerFailedRecordsJson"
+      },
+      {
+        "name": "sfCustomerSuccessFailureCombinedRecords"
+      }
+    ]
+  },
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-29T06:10:43.804Z"
+  },
+  "entity": "customer",
+  "postComplete": {
+    "triggerJobs": [
+      "migratePoliciesToSF"
+    ]
+  },
+  "process": [
+    {
+      "name": "transformSFCustomers"
+    }
+  ],
+  "read": {
+    "type": "API",
+    "parallelThreads": 1,
+    "maxRetryCount": 3,
+    "failureStrategy": "IGNORE",
+    "params": {
+      "request": {
+        "endpoint": {
+          "basePath": "databricks.basePath",
+          "url": "/api/2.0/sql/statements/",
+          "method": "POST"
+        },
+        "headers": {
+          "Authorization": "${AUTHORIZATION}"
+        },
+        "body": [
+          {
+            "name": "statement",
+            "value": "SELECT * FROM uat.salesforce_int.sf_customer360_bulk WHERE change_date >= '2025-11-05' ORDER BY DL_UNIQUE_ID LIMIT ${BATCH_SIZE} OFFSET ${OFFSET}",
+            "type": "dynamic"
+          },
+          {
+            "name": "warehouse_id",
+            "value": "9383dfdb4b6d2adf",
+            "type": "static",
+            "mapping": {}
+          },
+          {
+            "name": "wait_timeout",
+            "value": "50s",
+            "type": "static"
+          }
+        ],
+        "variables": [
+          {
+            "name": "CHANGE_DATE",
+            "type": "implementation",
+            "value": "getYesterday"
+          },
+          {
+            "name": "BATCH_SIZE",
+            "type": "static",
+            "value": 1000
+          },
+          {
+            "name": "OFFSET",
+            "type": "static",
+            "value": 0
+          },
+          {
+            "name": "AUTHORIZATION",
+            "type": "env",
+            "value": "databricks.token"
+          }
+        ]
+      },
+      "response": {
+        "params": [
+          {
+            "key": "columns",
+            "value": "manifest.schema.columns"
+          },
+          {
+            "key": "data",
+            "value": "result.data_array"
+          }
+        ]
+      },
+      "pagination": {
+        "type": "offset",
+        "offsetVariable": "OFFSET",
+        "batchSize": 1000,
+        "hasNext": "data"
+      }
+    }
+  },
+  "sink": {
+    "maxRetryCount": 3,
+    "batchSize": 5000,
+    "referenceId": {
+      "type": "context",
+      "value": "salesforceBatchId.referenceId"
+    },
+    "steps": [
+      {
+        "name": "sfDecryptCustomerFields"
+      },
+      {
+        "name": "sfCustomerFieldTransformations"
+      },
+      {
+        "name": "salesForceJWT"
+      },
+      {
+        "name": "salesForceAccessToken"
+      },
+      {
+        "name": "salesforceBatchId"
+      },
+      {
+        "name": "generateSFCustomerCSV"
+      },
+      {
+        "name": "salesforceUploadCustomers"
+      },
+      {
+        "name": "salesforceCloseBatch"
+      }
+    ]
+  },
+  "strategy": "SIMULTANEOUS_READ_WRITE",
+  "updatedAt": {
+    "$date": "2026-06-03T06:07:18.952Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3bb63036362344ab7fa60"
+  },
+  "name": "migratePoliciesToSF",
+  "ack": {
+    "type": "POLL",
+    "successRecords": "sfPolicySuccessFailureCombinedRecords.successRecords",
+    "failedRecords": "sfPolicySuccessFailureCombinedRecords.failedRecords",
+    "steps": [
+      {
+        "name": "salesForceJWT"
+      },
+      {
+        "name": "salesForceAccessToken"
+      },
+      {
+        "name": "salesforceJobInfo",
+        "postExecution": [
+          {
+            "conditions": [
+              {
+                "key": "salesforceJobInfo.jobStatus",
+                "operator": "equals",
+                "value": "UploadComplete"
+              }
+            ],
+            "effect": {
+              "step": "restartSteps"
+            }
+          },
+          {
+            "conditions": [
+              {
+                "key": "salesforceJobInfo.jobStatus",
+                "operator": "equals",
+                "value": "InProgress"
+              }
+            ],
+            "effect": {
+              "step": "restartSteps"
+            }
+          },
+          {
+            "conditions": [
+              {
+                "key": "salesforceJobInfo.jobStatus",
+                "operator": "equals",
+                "value": "JobComplete"
+              }
+            ],
+            "effect": {
+              "step": "next"
+            }
+          },
+          {
+            "conditions": [
+              {
+                "key": "salesforceJobInfo.jobStatus",
+                "operator": "notEquals",
+                "value": "JobComplete"
+              }
+            ],
+            "effect": {
+              "step": "next"
+            }
+          }
+        ]
+      },
+      {
+        "name": "salesforceSuccessEntries"
+      },
+      {
+        "name": "salesforceFailedEntries"
+      },
+      {
+        "name": "sfPolicySuccessRecordsJson"
+      },
+      {
+        "name": "sfPolicyFailedRecordsJson"
+      },
+      {
+        "name": "sfPolicySuccessFailureCombinedRecords"
+      }
+    ]
+  },
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T20:28:19.210Z"
+  },
+  "entity": "policy",
+  "postComplete": {
+    "triggerJobs": [
+      "migratePolicyMembersToSF"
+    ]
+  },
+  "process": [
+    {
+      "name": "transformSFPolicies"
+    }
+  ],
+  "read": {
+    "type": "API",
+    "parallelThreads": 1,
+    "maxRetryCount": 3,
+    "failureStrategy": "IGNORE",
+    "params": {
+      "request": {
+        "endpoint": {
+          "basePath": "databricks.basePath",
+          "url": "/api/2.0/sql/statements/",
+          "method": "POST"
+        },
+        "headers": {
+          "Authorization": "${AUTHORIZATION}"
+        },
+        "body": [
+          {
+            "name": "statement",
+            "value": "SELECT * FROM UAT.salesforce_int.sf_policy360_bulk where change_date >= '2025-11-05' ORDER BY POLICY_NUMBER LIMIT ${BATCH_SIZE} OFFSET ${OFFSET}",
+            "type": "dynamic"
+          },
+          {
+            "name": "warehouse_id",
+            "value": "9383dfdb4b6d2adf",
+            "type": "static",
+            "mapping": {}
+          },
+          {
+            "name": "wait_timeout",
+            "value": "50s",
+            "type": "static"
+          }
+        ],
+        "variables": [
+          {
+            "name": "CHANGE_DATE",
+            "type": "implementation",
+            "value": "getYesterday"
+          },
+          {
+            "name": "DATE",
+            "type": "implementation",
+            "value": "getToday"
+          },
+          {
+            "name": "BATCH_SIZE",
+            "type": "static",
+            "value": 1000
+          },
+          {
+            "name": "OFFSET",
+            "type": "static",
+            "value": 0
+          },
+          {
+            "name": "AUTHORIZATION",
+            "type": "env",
+            "value": "databricks.token"
+          }
+        ]
+      },
+      "response": {
+        "params": [
+          {
+            "key": "columns",
+            "value": "manifest.schema.columns"
+          },
+          {
+            "key": "data",
+            "value": "result.data_array"
+          }
+        ]
+      },
+      "pagination": {
+        "type": "offset",
+        "offsetVariable": "OFFSET",
+        "batchSize": 1000,
+        "hasNext": "data"
+      }
+    }
+  },
+  "sink": {
+    "maxRetryCount": 3,
+    "batchSize": 5000,
+    "referenceId": {
+      "type": "context",
+      "value": "salesforceBatchId.referenceId"
+    },
+    "steps": [
+      {
+        "name": "sfDecryptPolicyFields"
+      },
+      {
+        "name": "sfPolicyFieldTransformations"
+      },
+      {
+        "name": "salesForceJWT"
+      },
+      {
+        "name": "salesForceAccessToken"
+      },
+      {
+        "name": "salesforceBatchId"
+      },
+      {
+        "name": "generateSFPolicyCSV"
+      },
+      {
+        "name": "salesforceUploadPolicies"
+      },
+      {
+        "name": "salesforceCloseBatch"
+      }
+    ]
+  },
+  "strategy": "SIMULTANEOUS_READ_WRITE",
+  "updatedAt": {
+    "$date": "2026-04-30T20:28:19.210Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3bd6f036362344ab9cee5"
+  },
+  "name": "migratePolicyMembersToSF",
+  "ack": {
+    "type": "POLL",
+    "successRecords": "sfPolicyMemberSuccessFailureCombinedRecords.successRecords",
+    "failedRecords": "sfPolicyMemberSuccessFailureCombinedRecords.failedRecords",
+    "steps": [
+      {
+        "name": "salesForceJWT"
+      },
+      {
+        "name": "salesForceAccessToken"
+      },
+      {
+        "name": "salesforceJobInfo",
+        "postExecution": [
+          {
+            "conditions": [
+              {
+                "key": "salesforceJobInfo.jobStatus",
+                "operator": "equals",
+                "value": "UploadComplete"
+              }
+            ],
+            "effect": {
+              "step": "restartSteps"
+            }
+          },
+          {
+            "conditions": [
+              {
+                "key": "salesforceJobInfo.jobStatus",
+                "operator": "equals",
+                "value": "InProgress"
+              }
+            ],
+            "effect": {
+              "step": "restartSteps"
+            }
+          },
+          {
+            "conditions": [
+              {
+                "key": "salesforceJobInfo.jobStatus",
+                "operator": "equals",
+                "value": "JobComplete"
+              }
+            ],
+            "effect": {
+              "step": "next"
+            }
+          },
+          {
+            "conditions": [
+              {
+                "key": "salesforceJobInfo.jobStatus",
+                "operator": "notEquals",
+                "value": "JobComplete"
+              }
+            ],
+            "effect": {
+              "step": "next"
+            }
+          }
+        ]
+      },
+      {
+        "name": "salesforceSuccessEntries"
+      },
+      {
+        "name": "salesforceFailedEntries"
+      },
+      {
+        "name": "sfPolicyMemberSuccessRecordsJson"
+      },
+      {
+        "name": "sfPolicyMemberFailedRecordsJson"
+      },
+      {
+        "name": "sfPolicyMemberSuccessFailureCombinedRecords"
+      }
+    ]
+  },
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T20:37:03.738Z"
+  },
+  "entity": "policyMember",
+  "postComplete": {
+    "triggerJobs": [
+      "migrateEmiToSF"
+    ]
+  },
+  "process": [
+    {
+      "name": "transformSFPolicyMembers"
+    }
+  ],
+  "read": {
+    "type": "API",
+    "parallelThreads": 1,
+    "maxRetryCount": 3,
+    "failureStrategy": "IGNORE",
+    "params": {
+      "request": {
+        "endpoint": {
+          "basePath": "databricks.basePath",
+          "url": "/api/2.0/sql/statements/",
+          "method": "POST"
+        },
+        "headers": {
+          "Authorization": "${AUTHORIZATION}"
+        },
+        "body": [
+          {
+            "name": "statement",
+            "value": "SELECT * FROM UAT.salesforce_int.sf_policy360_member_bulk where change_date >= '2025-11-05' ORDER BY POLICY_NUMBER, DL_UNIQUE_ID LIMIT ${BATCH_SIZE} OFFSET ${OFFSET}",
+            "type": "dynamic"
+          },
+          {
+            "name": "warehouse_id",
+            "value": "9383dfdb4b6d2adf",
+            "type": "static",
+            "mapping": {}
+          },
+          {
+            "name": "wait_timeout",
+            "value": "50s",
+            "type": "static"
+          }
+        ],
+        "variables": [
+          {
+            "name": "CHANGE_DATE",
+            "type": "implementation",
+            "value": "getYesterday"
+          },
+          {
+            "name": "BATCH_SIZE",
+            "type": "static",
+            "value": 1000
+          },
+          {
+            "name": "OFFSET",
+            "type": "static",
+            "value": 0
+          },
+          {
+            "name": "AUTHORIZATION",
+            "type": "env",
+            "value": "databricks.token"
+          }
+        ]
+      },
+      "response": {
+        "params": [
+          {
+            "key": "columns",
+            "value": "manifest.schema.columns"
+          },
+          {
+            "key": "data",
+            "value": "result.data_array"
+          }
+        ]
+      },
+      "pagination": {
+        "type": "offset",
+        "offsetVariable": "OFFSET",
+        "batchSize": 1000,
+        "hasNext": "data"
+      }
+    }
+  },
+  "sink": {
+    "maxRetryCount": 3,
+    "batchSize": 1000,
+    "referenceId": {
+      "type": "context",
+      "value": "salesforceBatchId.referenceId"
+    },
+    "steps": [
+      {
+        "name": "sfDecryptPolicyMemberFields"
+      },
+      {
+        "name": "sfPolicyMemberFieldTransformations"
+      },
+      {
+        "name": "salesForceJWT"
+      },
+      {
+        "name": "salesForceAccessToken"
+      },
+      {
+        "name": "salesforceBatchId"
+      },
+      {
+        "name": "generateSFPolicyMemberCSV"
+      },
+      {
+        "name": "salesforceUploadPolicyMembers"
+      },
+      {
+        "name": "salesforceCloseBatch"
+      }
+    ]
+  },
+  "strategy": "SIMULTANEOUS_READ_WRITE",
+  "updatedAt": {
+    "$date": "2026-04-30T20:37:03.738Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6a1fc7883f4c120968cfd559"
+  },
+  "name": "migrateOfficeMasterToSF",
+  "ack": null,
+  "active": false,
+  "createdAt": {
+    "$date": "2026-04-29T09:10:43.804Z"
+  },
+  "entity": "office",
+  "postComplete": null,
+  "process": [
+    {
+      "name": "transformSFOffice"
+    }
+  ],
+  "read": {
+    "type": "API",
+    "parallelThreads": 1,
+    "maxRetryCount": 3,
+    "failureStrategy": "ABORT",
+    "params": {
+      "request": {
+        "endpoint": {
+          "basePath": "databricks.basePath",
+          "url": "/api/2.0/sql/statements/",
+          "method": "POST"
+        },
+        "headers": {
+          "Content-Type": "application/json",
+          "authorization": "${AUTHORIZATION}"
+        },
+        "body": [
+          {
+            "name": "statement",
+            "value": "SELECT * FROM uat.salesforce_int.sf_office_master WHERE change_date >= '2025-10-01' ORDER BY OFFICE_CODE LIMIT ${BATCH_SIZE} OFFSET ${OFFSET}",
+            "type": "dynamic"
+          },
+          {
+            "name": "warehouse_id",
+            "value": "9383dfdb4b6d2adf",
+            "type": "static",
+            "mapping": {}
+          },
+          {
+            "name": "wait_timeout",
+            "value": "50s",
+            "type": "static"
+          }
+        ],
+        "variables": [
+          {
+            "name": "DATE",
+            "type": "implementation",
+            "value": "getYesterday"
+          },
+          {
+            "name": "BATCH_SIZE",
+            "type": "static",
+            "value": 1000
+          },
+          {
+            "name": "OFFSET",
+            "type": "static",
+            "value": 0
+          },
+          {
+            "name": "AUTHORIZATION",
+            "type": "env",
+            "value": "databricks.token"
+          }
+        ]
+      },
+      "response": {
+        "params": [
+          {
+            "key": "columns",
+            "value": "manifest.schema.columns"
+          },
+          {
+            "key": "data",
+            "value": "result.data_array"
+          }
+        ]
+      },
+      "pagination": {
+        "type": "offset",
+        "offsetVariable": "OFFSET",
+        "batchSize": 100,
+        "hasNext": "data"
+      }
+    }
+  },
+  "sink": {
+    "maxRetryCount": 3,
+    "batchSize": 200,
+    "referenceId": {
+      "type": "context",
+      "value": "salesforceBatchId.referenceId"
+    },
+    "steps": [
+      {
+        "name": "sfDecryptOfficeFields"
+      },
+      {
+        "name": "salesForceJWT"
+      },
+      {
+        "name": "sfOfficeFieldTransformations"
+      },
+      {
+        "name": "salesForceAccessToken"
+      },
+      {
+        "name": "salesforceBatchId"
+      },
+      {
+        "name": "generateSFOfficeCSV"
+      },
+      {
+        "name": "salesforceUploadOffice"
+      },
+      {
+        "name": "salesforceCloseBatch"
+      }
+    ]
+  },
+  "strategy": "SIMULTANEOUS_READ_WRITE",
+  "updatedAt": {
+    "$date": "2026-07-15T11:10:54.670Z"
+  },
+  "trigger": {
+    "type": "SCHEDULER",
+    "cron": "0 0 6 * * *"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3b2ed036362344ab10f02"
+  },
+  "name": "migrateAgentsToSF",
+  "ack": {
+    "type": "POLL",
+    "successRecords": "sfAgentSuccessFailureCombinedRecords.successRecords",
+    "failedRecords": "sfAgentSuccessFailureCombinedRecords.failedRecords",
+    "steps": [
+      {
+        "name": "salesForceJWT"
+      },
+      {
+        "name": "salesForceAccessToken"
+      },
+      {
+        "name": "salesforceJobInfo",
+        "postExecution": [
+          {
+            "conditions": [
+              {
+                "key": "salesforceJobInfo.jobStatus",
+                "operator": "equals",
+                "value": "JobComplete"
+              }
+            ],
+            "effect": {
+              "step": "next"
+            }
+          },
+          {
+            "conditions": [
+              {
+                "key": "salesforceJobInfo.jobStatus",
+                "operator": "notEquals",
+                "value": "JobComplete"
+              }
+            ],
+            "effect": {
+              "step": "restartSteps"
+            }
+          }
+        ]
+      },
+      {
+        "name": "salesforceSuccessEntries"
+      },
+      {
+        "name": "salesforceFailedEntries"
+      },
+      {
+        "name": "sfAgentSuccessRecordsJson"
+      },
+      {
+        "name": "sfAgentFailedRecordsJson"
+      },
+      {
+        "name": "sfAgentSuccessFailureCombinedRecords"
+      }
+    ]
+  },
+  "active": true,
+  "createdAt": "2026-04-30T19:52:13.852Z",
+  "entity": "agent",
+  "postComplete": null,
+  "process": [
+    {
+      "name": "transformSFAgents"
+    }
+  ],
+  "read": {
+    "type": "API",
+    "parallelThreads": 1,
+    "maxRetryCount": 3,
+    "failureStrategy": "IGNORE",
+    "params": {
+      "request": {
+        "endpoint": {
+          "basePath": "databricks.basePath",
+          "url": "/api/2.0/sql/statements/",
+          "method": "POST"
+        },
+        "headers": {
+          "Authorization": "${AUTHORIZATION}"
+        },
+        "body": [
+          {
+            "name": "statement",
+            "value": "SELECT * FROM uat.salesforce_int.sf_agent_master where change_date >= '2025-11-05' ORDER BY AGENT_CODE LIMIT ${BATCH_SIZE} OFFSET ${OFFSET}",
+            "type": "dynamic"
+          },
+          {
+            "name": "warehouse_id",
+            "value": "9383dfdb4b6d2adf",
+            "type": "static",
+            "mapping": {}
+          },
+          {
+            "name": "wait_timeout",
+            "value": "50s",
+            "type": "static"
+          }
+        ],
+        "variables": [
+          {
+            "name": "DATE",
+            "type": "implementation",
+            "value": "getToday"
+          },
+          {
+            "name": "BATCH_SIZE",
+            "type": "static",
+            "value": 1000
+          },
+          {
+            "name": "OFFSET",
+            "type": "static",
+            "value": 0
+          },
+          {
+            "name": "AUTHORIZATION",
+            "type": "env",
+            "value": "databricks.token"
+          }
+        ]
+      },
+      "response": {
+        "params": [
+          {
+            "key": "columns",
+            "value": "manifest.schema.columns"
+          },
+          {
+            "key": "data",
+            "value": "result.data_array"
+          }
+        ]
+      },
+      "pagination": {
+        "type": "offset",
+        "offsetVariable": "OFFSET",
+        "batchSize": 1000,
+        "hasNext": "data"
+      }
+    }
+  },
+  "sink": {
+    "maxRetryCount": 3,
+    "batchSize": 1000,
+    "referenceId": {
+      "type": "context",
+      "value": "salesforceBatchId.referenceId"
+    },
+    "steps": [
+      {
+        "name": "sfDecryptAgentFields"
+      },
+      {
+        "name": "salesForceJWT"
+      },
+      {
+        "name": "sfAgentFieldTransformations"
+      },
+      {
+        "name": "salesForceAccessToken"
+      },
+      {
+        "name": "salesforceBatchId"
+      },
+      {
+        "name": "generateSFAgentCSV"
+      },
+      {
+        "name": "salesforceUploadAgent"
+      },
+      {
+        "name": "salesforceCloseBatch"
+      }
+    ]
+  },
+  "strategy": "SIMULTANEOUS_SINGLE_TRIGGER",
+  "updatedAt": "2026-04-30T20:14:16.561Z"
+},
+{
+  "_id": {
+    "$oid": "6a2687565b6798a53ff6d538"
+  },
+  "name": "leadSyncGreyLabs",
+  "ack": null,
+  "active": false,
+  "entity": "lead",
+  "postComplete": null,
+  "process": [
+    {
+      "name": "transformLeadGL"
+    }
+  ],
+  "read": {
+    "type": "SQL",
+    "maxRetryCount": 3,
+    "failureStrategy": "IGNORE",
+    "params": {
+      "source": "lead-platform",
+      "request": {
+        "baseQuery": "SELECT id, lead_uuid, mobile_number_e, credit_card_count, total_credit_accounts, total_credit_card_limits, total_late_payment_days, full_name, gender, age, latest_pincode, score_v3, affluence, state, languages FROM customer_lead",
+        "whereQuery": "id > 236100 and is_encrypted = 1 and is_pushed = 0",
+        "orderBy": "id",
+        "nextCursor": {
+          "query": "id > ${CURSOR}",
+          "includeInFirstQuery": true
+        }
+      },
+      "pagination": {
+        "type": "cursor",
+        "batchSize": "100",
+        "offsetVariable": "CURSOR",
+        "nextCursorPath": "$.data[-1][0]"
+      }
+    }
+  },
+  "sink": {
+    "maxRetryCount": 0,
+    "batchSize": 100,
+    "steps": [
+      {
+        "name": "pushToGreylabs"
+      }
+    ]
+  },
+  "strategy": "SIMULTANEOUS_READ_WRITE",
+  "updatedAt": {
+    "$date": "2026-07-07T13:17:44.904Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6a290b9fcf3c083ed393490e"
+  },
+  "name": "migrateEmiToSF",
+  "ack": {
+    "type": "POLL",
+    "successRecords": "sfEmiSuccessFailureCombinedRecords.successRecords",
+    "failedRecords": "sfEmiSuccessFailureCombinedRecords.failedRecords",
+    "steps": [
+      {
+        "name": "salesForceJWT"
+      },
+      {
+        "name": "salesForceAccessToken"
+      },
+      {
+        "name": "salesforceJobInfo",
+        "postExecution": [
+          {
+            "conditions": [
+              {
+                "key": "salesforceJobInfo.jobStatus",
+                "operator": "equals",
+                "value": "JobComplete"
+              }
+            ],
+            "effect": {
+              "step": "next"
+            }
+          },
+          {
+            "conditions": [
+              {
+                "key": "salesforceJobInfo.jobStatus",
+                "operator": "notEquals",
+                "value": "JobComplete"
+              }
+            ],
+            "effect": {
+              "step": "restartSteps"
+            }
+          }
+        ]
+      },
+      {
+        "name": "salesforceSuccessEntries"
+      },
+      {
+        "name": "salesforceFailedEntries"
+      },
+      {
+        "name": "sfEmiSuccessRecordsJson"
+      },
+      {
+        "name": "sfEmiFailedRecordsJson"
+      },
+      {
+        "name": "sfEmiSuccessFailureCombinedRecords"
+      }
+    ]
+  },
+  "active": true,
+  "createdAt": {
+    "$date": "2026-06-10T07:00:47.300Z"
+  },
+  "entity": "emi",
+  "postComplete": null,
+  "process": [
+    {
+      "name": "transformSFEmi"
+    }
+  ],
+  "read": {
+    "type": "API",
+    "parallelThreads": 1,
+    "maxRetryCount": 3,
+    "failureStrategy": "IGNORE",
+    "params": {
+      "request": {
+        "endpoint": {
+          "basePath": "databricks.basePath",
+          "url": "/api/2.0/sql/statements/",
+          "method": "POST"
+        },
+        "headers": {
+          "Authorization": "${AUTHORIZATION}"
+        },
+        "body": [
+          {
+            "name": "statement",
+            "value": "SELECT * FROM uat.salesforce_int.sf_emi_feed WHERE LIMIT ${BATCH_SIZE} OFFSET ${OFFSET}",
+            "type": "dynamic"
+          },
+          {
+            "name": "warehouse_id",
+            "value": "9383dfdb4b6d2adf",
+            "type": "static"
+          },
+          {
+            "name": "wait_timeout",
+            "value": "50s",
+            "type": "static"
+          }
+        ],
+        "variables": [
+          {
+            "name": "CHANGE_DATE",
+            "type": "implementation",
+            "value": "getYesterday"
+          },
+          {
+            "name": "DATE",
+            "type": "implementation",
+            "value": "getToday"
+          },
+          {
+            "name": "BATCH_SIZE",
+            "type": "static",
+            "value": 1000
+          },
+          {
+            "name": "OFFSET",
+            "type": "static",
+            "value": 0
+          },
+          {
+            "name": "AUTHORIZATION",
+            "type": "env",
+            "value": "databricks.token"
+          }
+        ]
+      },
+      "response": {
+        "params": [
+          {
+            "key": "columns",
+            "value": "manifest.schema.columns"
+          },
+          {
+            "key": "data",
+            "value": "result.data_array"
+          }
+        ]
+      },
+      "pagination": {
+        "type": "offset",
+        "offsetVariable": "OFFSET",
+        "batchSize": 1000,
+        "hasNext": "data"
+      }
+    }
+  },
+  "sink": {
+    "maxRetryCount": 3,
+    "batchSize": 5000,
+    "referenceId": {
+      "type": "context",
+      "value": "salesforceBatchId.referenceId"
+    },
+    "steps": [
+      {
+        "name": "salesForceJWT"
+      },
+      {
+        "name": "sfEmiFieldTransformations"
+      },
+      {
+        "name": "salesForceAccessToken"
+      },
+      {
+        "name": "salesforceBatchId"
+      },
+      {
+        "name": "generateSFEmiCSV"
+      },
+      {
+        "name": "salesforceUploadEmi"
+      },
+      {
+        "name": "salesforceCloseBatch"
+      }
+    ]
+  },
+  "strategy": "SIMULTANEOUS_READ_WRITE",
+  "updatedAt": {
+    "$date": "2026-06-10T07:00:47.300Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6a2918c98a76c3cae17ec292"
+  },
+  "name": "migrateProposalUpdatesToSF",
+  "ack": null,
+  "active": true,
+  "entity": "proposalUpdate",
+  "postComplete": null,
+  "process": [
+    {
+      "name": "transformSFProposalUpdates"
+    }
+  ],
+  "read": {
+    "type": "API",
+    "parallelThreads": 1,
+    "maxRetryCount": 3,
+    "failureStrategy": "IGNORE",
+    "params": {
+      "request": {
+        "endpoint": {
+          "basePath": "databricks.basePath",
+          "url": "/api/2.0/sql/statements/",
+          "method": "POST"
+        },
+        "headers": {
+          "Authorization": "${AUTHORIZATION}"
+        },
+        "body": [
+          {
+            "name": "statement",
+            "value": "SELECT * FROM UAT.salesforce_int.sf_proposal_update where change_date >= '2025-10-05' ORDER BY PROPOSAL_NUMBER LIMIT ${BATCH_SIZE} OFFSET ${OFFSET}",
+            "type": "dynamic"
+          },
+          {
+            "name": "warehouse_id",
+            "value": "9383dfdb4b6d2adf",
+            "type": "static",
+            "mapping": {}
+          },
+          {
+            "name": "wait_timeout",
+            "value": "50s",
+            "type": "static"
+          }
+        ],
+        "variables": [
+          {
+            "name": "CHANGE_DATE",
+            "type": "implementation",
+            "value": "getYesterday"
+          },
+          {
+            "name": "BATCH_SIZE",
+            "type": "static",
+            "value": 1000
+          },
+          {
+            "name": "OFFSET",
+            "type": "static",
+            "value": 0
+          },
+          {
+            "name": "AUTHORIZATION",
+            "type": "env",
+            "value": "databricks.token"
+          }
+        ]
+      },
+      "response": {
+        "params": [
+          {
+            "key": "columns",
+            "value": "manifest.schema.columns"
+          },
+          {
+            "key": "data",
+            "value": "result.data_array"
+          }
+        ]
+      },
+      "pagination": {
+        "type": "offset",
+        "offsetVariable": "OFFSET",
+        "batchSize": 1,
+        "hasNext": "data"
+      }
+    }
+  },
+  "sink": {
+    "maxRetryCount": 3,
+    "batchSize": 1,
+    "referenceId": {
+      "type": "context",
+      "value": "updateLeadsBancs"
+    },
+    "steps": [
+      {
+        "name": "sfProposalUpdateFieldTransformations"
+      },
+      {
+        "name": "proposalUpdateArrayToObject"
+      },
+      {
+        "name": "salesForceJWT"
+      },
+      {
+        "name": "salesForceAccessToken"
+      },
+      {
+        "name": "salesforceBancsUpdate"
+      }
+    ]
+  },
+  "strategy": "SIMULTANEOUS_READ_WRITE",
+  "updatedAt": {
+    "$date": "2026-07-06T09:56:51.476Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6a32614a0c633f0b114ce0e0"
+  },
+  "name": "leadSyncGreyLabs",
+  "ack": {},
+  "active": true,
+  "entity": "lead",
+  "postComplete": null,
+  "process": [
+    {
+      "name": "transformLeadGL"
+    }
+  ],
+  "read": {
+    "type": "SQL",
+    "maxRetryCount": 3,
+    "failureStrategy": "IGNORE",
+    "params": {
+      "source": "lead-platform",
+      "request": {
+        "baseQuery": "SELECT id, lead_uuid, mobile_number_e, credit_card_count, total_credit_accounts, total_credit_card_limits, total_late_payment_days, full_name, gender, age, latest_pincode, score_v3, affluence, state, languages FROM customer_lead",
+        "whereQuery": "is_encrypted = 1",
+        "orderBy": "id",
+        "nextCursor": {
+          "query": "id > ${CURSOR}",
+          "includeInFirstQuery": true
+        }
+      },
+      "pagination": {
+        "type": "cursor",
+        "batchSize": "100",
+        "offsetVariable": "CURSOR",
+        "nextCursorPath": "$.data[-1][0]"
+      }
+    }
+  },
+  "sink": {
+    "maxRetryCount": 0,
+    "batchSize": 100,
+    "steps": [
+      {
+        "name": "pushToGreylabs"
+      }
+    ]
+  },
+  "strategy": "SIMULTANEOUS_READ_WRITE"
+},
+{
+  "_id": {
+    "$oid": "6a437c163130de1d03485010"
+  },
+  "name": "migrateGoldenCopyRQ",
+  "ack": {},
+  "active": true,
+  "entity": "renewalQuote",
+  "postComplete": null,
+  "process": [
+    {
+      "name": "transformRQ"
+    }
+  ],
+  "read": {
+    "type": "API",
+    "parallelThreads": 1,
+    "maxRetryCount": 3,
+    "failureStrategy": "IGNORE",
+    "params": {
+      "request": {
+        "endpoint": {
+          "basePath": "databricks.basepath",
+          "url": "/api/2.0/sql/statements/",
+          "method": "POST"
+        },
+        "headers": {
+          "Content-Type": "application/json",
+          "Authorization": "${TOKEN}"
+        },
+        "body": [
+          {
+            "name": "statement",
+            "value": "select SEQ_NUM,* FROM uat.reporting_tables.agg_renewal_quote_push_crm where SEQ_NUM > ${CURSOR} AND gc_flag = 'Y' AND proposal_status not in ('CANCELLED', 'REJECTED') AND REPORTED_DATE >= CURRENT_DATE()-2 order by SEQ_NUM asc limit ${BATCH_SIZE};",
+            "type": "dynamic"
+          },
+          {
+            "name": "warehouse_id",
+            "value": "7accb35d7fc13ad9",
+            "type": "static"
+          },
+          {
+            "name": "wait_timeout",
+            "value": "50s",
+            "type": "static"
+          }
+        ],
+        "variables": [
+          {
+            "name": "DATE",
+            "type": "implementation",
+            "value": "getYesterday"
+          },
+          {
+            "name": "BATCH_SIZE",
+            "type": "static",
+            "value": 1000
+          },
+          {
+            "name": "TOKEN",
+            "type": "env",
+            "value": "databricks.token"
+          }
+        ]
+      },
+      "response": {
+        "params": [
+          {
+            "key": "columns",
+            "value": "manifest.schema.columns"
+          },
+          {
+            "key": "data",
+            "value": "result.data_array"
+          }
+        ]
+      },
+      "pagination": {
+        "type": "cursor",
+        "offsetVariable": "CURSOR",
+        "batchSize": 1000,
+        "hasNext": "data",
+        "nextCursorPath": "$.data[-1][0]"
+      }
+    }
+  },
+  "sink": {
+    "maxRetryCount": 3,
+    "batchSize": 1,
+    "steps": [
+      {
+        "name": "zohoDecryptRenewalQuoteFields"
+      },
+      {
+        "name": "flattenDecryptedRQ"
+      },
+      {
+        "name": "zohoAccessToken"
+      },
+      {
+        "name": "zohoUploadRQGoldenCopy"
+      }
+    ]
+  },
+  "report": {
+    "emails": [
+      "dhruv.singhal@starhealth.in",
+      "v.vishnupriya@starhealth.in"
+    ],
+    "notificationTemplateId": "2079-300-DATA_BRIDGE_REPORTS",
+    "jobName": "Migrate Renewal Quotes",
+    "type": "EMAIL"
+  },
+  "strategy": "SIMULTANEOUS_READ_WRITE",
+  "updatedAt": {
+    "$date": "2026-07-15T13:18:11.316Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6a437c163130de1d03485011"
+  },
+  "name": "migrateCancelledRQ",
+  "ack": {},
+  "active": true,
+  "entity": "renewalQuote",
+  "postComplete": null,
+  "process": [
+    {
+      "name": "transformCancelledRQ"
+    }
+  ],
+  "read": {
+    "type": "API",
+    "parallelThreads": 1,
+    "maxRetryCount": 3,
+    "failureStrategy": "IGNORE",
+    "params": {
+      "request": {
+        "endpoint": {
+          "basePath": "databricks.basepath",
+          "url": "/api/2.0/sql/statements/",
+          "method": "POST"
+        },
+        "headers": {
+          "Content-Type": "application/json",
+          "Authorization": "${TOKEN}"
+        },
+        "body": [
+          {
+            "name": "statement",
+            "value": "select SEQ_NUM,* FROM uat.reporting_tables.agg_renewal_quote_push_crm where SEQ_NUM > ${CURSOR} AND proposal_status in ('CANCELLED', 'REJECTED') order by SEQ_NUM asc limit ${BATCH_SIZE};",
+            "type": "dynamic"
+          },
+          {
+            "name": "warehouse_id",
+            "value": "7accb35d7fc13ad9",
+            "type": "static"
+          },
+          {
+            "name": "wait_timeout",
+            "value": "50s",
+            "type": "static"
+          }
+        ],
+        "variables": [
+          {
+            "name": "DATE",
+            "type": "implementation",
+            "value": "getToday"
+          },
+          {
+            "name": "BATCH_SIZE",
+            "type": "static",
+            "value": 1000
+          },
+          {
+            "name": "TOKEN",
+            "type": "env",
+            "value": "databricks.token"
+          }
+        ]
+      },
+      "response": {
+        "params": [
+          {
+            "key": "columns",
+            "value": "manifest.schema.columns"
+          },
+          {
+            "key": "data",
+            "value": "result.data_array"
+          }
+        ]
+      },
+      "pagination": {
+        "type": "cursor",
+        "offsetVariable": "CURSOR",
+        "batchSize": 1000,
+        "hasNext": "data",
+        "nextCursorPath": "$.data[-1][0]",
+        "nextCursorAt": "0"
+      }
+    }
+  },
+  "sink": {
+    "maxRetryCount": 3,
+    "batchSize": 1,
+    "steps": [
+      {
+        "name": "flattenSinkRQ"
+      },
+      {
+        "name": "zohoAccessToken"
+      },
+      {
+        "name": "zohoUploadRQ"
+      }
+    ]
+  },
+  "report": {
+    "emails": [
+      "dhruv.singhal@starhealth.in",
+      "v.vishnupriya@starhealth.in"
+    ],
+    "notificationTemplateId": "2079-300-DATA_BRIDGE_REPORTS",
+    "jobName": "Migrate Cancelled/Rejected Renewal Quotes",
+    "type": "EMAIL"
+  },
+  "strategy": "SIMULTANEOUS_READ_WRITE"
+},
+{
+  "_id": {
+    "$oid": "6a437c163130de1d03485012"
+  },
+  "name": "migratePolicyConvertedRQ",
+  "ack": {},
+  "active": true,
+  "entity": "renewalQuote",
+  "postComplete": null,
+  "process": [
+    {
+      "name": "transformPolicyRQ"
+    }
+  ],
+  "read": {
+    "type": "API",
+    "parallelThreads": 1,
+    "maxRetryCount": 3,
+    "failureStrategy": "IGNORE",
+    "params": {
+      "request": {
+        "endpoint": {
+          "basePath": "databricks.basepath",
+          "url": "/api/2.0/sql/statements/",
+          "method": "POST"
+        },
+        "headers": {
+          "Content-Type": "application/json",
+          "Authorization": "${TOKEN}"
+        },
+        "body": [
+          {
+            "name": "statement",
+            "value": "select * FROM uat.reporting_tables.agg_renewal_quote_push_crm where SEQ_NUM > ${CURSOR} AND PREMIA_CONVERTED_POLICY_NO is not null order by SEQ_NUM asc limit ${BATCH_SIZE};",
+            "type": "dynamic"
+          },
+          {
+            "name": "warehouse_id",
+            "value": "7accb35d7fc13ad9",
+            "type": "static"
+          },
+          {
+            "name": "wait_timeout",
+            "value": "50s",
+            "type": "static"
+          }
+        ],
+        "variables": [
+          {
+            "name": "DATE",
+            "type": "implementation",
+            "value": "getToday"
+          },
+          {
+            "name": "BATCH_SIZE",
+            "type": "static",
+            "value": 1000
+          },
+          {
+            "name": "TOKEN",
+            "type": "env",
+            "value": "databricks.token"
+          }
+        ]
+      },
+      "response": {
+        "params": [
+          {
+            "key": "columns",
+            "value": "manifest.schema.columns"
+          },
+          {
+            "key": "data",
+            "value": "result.data_array"
+          }
+        ]
+      },
+      "pagination": {
+        "type": "cursor",
+        "offsetVariable": "CURSOR",
+        "batchSize": 1000,
+        "hasNext": "data",
+        "nextCursorPath": "$.data[-1][0]",
+        "nextCursorAt": "0"
+      }
+    }
+  },
+  "sink": {
+    "maxRetryCount": 3,
+    "batchSize": 1,
+    "steps": [
+      {
+        "name": "flattenSinkRQ"
+      },
+      {
+        "name": "zohoAccessToken"
+      },
+      {
+        "name": "zohoUploadRQ"
+      }
+    ]
+  },
+  "report": {
+    "emails": [
+      "dhruv.singhal@starhealth.in",
+      "v.vishnupriya@starhealth.in"
+    ],
+    "notificationTemplateId": "2079-300-DATA_BRIDGE_REPORTS",
+    "jobName": "Migrate Renewal Quotes Converted to Policy",
+    "type": "EMAIL"
+  },
+  "strategy": "SIMULTANEOUS_READ_WRITE"
+},
+{
+  "_id": {
+    "$oid": "6a437c163130de1d03485013"
+  },
+  "name": "updatePaymentStatusRQ",
+  "ack": {},
+  "active": true,
+  "entity": "renewalQuotePayment",
+  "postComplete": null,
+  "process": [
+    {
+      "name": "transformPaymentRQ"
+    }
+  ],
+  "read": {
+    "type": "SQL",
+    "maxRetryCount": 3,
+    "failureStrategy": "IGNORE",
+    "params": {
+      "source": "datalake",
+      "request": {
+        "baseQuery": "select * from public.agg_payment_status_daily_vw"
+      },
+      "pagination": {
+        "type": "offset",
+        "batchSize": "1000"
+      }
+    }
+  },
+  "sink": {
+    "maxRetryCount": 3,
+    "batchSize": 1,
+    "steps": [
+      {
+        "name": "zohoAccessToken"
+      },
+      {
+        "name": "flattenSinkRQ"
+      },
+      {
+        "name": "zohoUploadRQPayment"
+      }
+    ]
+  },
+  "report": {
+    "emails": [
+      "dhruv.singhal@starhealth.in",
+      "v.vishnupriya@starhealth.in"
+    ],
+    "notificationTemplateId": "2079-300-DATA_BRIDGE_REPORTS",
+    "jobName": "Migrate Renewal Quotes Payment",
+    "type": "EMAIL"
+  },
+  "strategy": "SIMULTANEOUS_READ_WRITE",
+  "updatedAt": {
+    "$date": "2026-07-15T13:39:45.509Z"
+  }
+}]

@@ -1,0 +1,4666 @@
+[{
+  "_id": {
+    "$oid": "69f09625036362344a919c61"
+  },
+  "name": "salesForceJWT",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-28T11:12:37.719Z"
+  },
+  "params": {
+    "privateKeyPath": "salesforce.privateKeyPath",
+    "publicKeyPath": null,
+    "algorithm": "RSA256",
+    "expiryInSec": 86400,
+    "issuer": "salesforce.issuer",
+    "subject": "salesforce.subject",
+    "audience": "salesforce.audience"
+  },
+  "type": "JWT",
+  "updatedAt": {
+    "$date": "2026-04-28T11:12:37.719Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f0964d036362344a91c658"
+  },
+  "name": "salesForceAccessToken",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-28T11:13:17.606Z"
+  },
+  "params": {
+    "request": {
+      "endpoint": {
+        "basePath": "salesforce.basePath",
+        "url": "/services/oauth2/token",
+        "method": "POST"
+      },
+      "headers": {
+        "content-type": "application/x-www-form-urlencoded"
+      },
+      "body": [
+        {
+          "name": "grant_type",
+          "value": "urn:ietf:params:oauth:grant-type:jwt-bearer",
+          "type": "static"
+        },
+        {
+          "name": "assertion",
+          "value": "${TOKEN}",
+          "type": "dynamic"
+        }
+      ],
+      "variables": [
+        {
+          "name": "TOKEN",
+          "type": "context",
+          "value": "salesForceJWT"
+        }
+      ]
+    },
+    "response": {
+      "params": [
+        {
+          "key": "accessToken",
+          "value": "access_token"
+        }
+      ]
+    }
+  },
+  "type": "API",
+  "updatedAt": {
+    "$date": "2026-04-28T11:13:17.606Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f09723036362344a92a570"
+  },
+  "name": "transformSFCustomers",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-28T11:16:51.349Z"
+  },
+  "params": {
+    "updateDataFlow": true,
+    "config": [
+      {
+        "operation": "shift",
+        "spec": {
+          "read": {
+            "data": {
+              "*": {
+                "*": "[&1].@(4,read.columns[&].name)"
+              }
+            }
+          }
+        }
+      },
+      {
+        "operation": "shift",
+        "spec": {
+          "*": {
+            "AADHAR_NO": "[&1].record.AadharNumber__c",
+            "ACCOUNT_TYPE": "[&1].record.AccountType__c",
+            "BANK_ACCOUNT_NUMBER": "[&1].record.BankAccountNumber__c",
+            "BANK_BRANCH": "[&1].record.BankBranchCode__c",
+            "CKYC_STATUS": "[&1].record.CKYCStatus__c",
+            "CKYC_NUMBER": "[&1].record.CKYCNUMBER__c",
+            "CUST_PROFILE": "[&1].record.CustomerProfile__c",
+            "DOB": "[&1].record.PersonBirthdate",
+            "DL_UNIQUE_ID": [
+              "[&1].record.DLUniqueId__c",
+              "[&1].recordId"
+            ],
+            "EMAIL_ID": "[&1].record.PersonEmail",
+            "FIRST_NAME": [
+              "[&1].record.FirstName",
+              "[&1].record.CFirstName__pc"
+            ],
+            "GENDER": "[&1].record.PersonGenderIdentity",
+            "HEALTH_ID": "[&1].record.HealthId__c",
+            "LAST_NAME": [
+              "[&1].record.LastName",
+              "[&1].record.CLastName__pc"
+            ],
+            "PER_CITY": "[&1].record.PersonMailingCity",
+            "PER_COUNTRY": "[&1].record.PersonMailingCountry",
+            "PER_STATE": "[&1].record.PersonMailingState",
+            "PER_STREET": "[&1].record.PersonMailingStreet",
+            "PER_PIN_CODE": "[&1].record.PersonMailingPostalCode",
+            "MARITAL_STATUS": "[&1].record.MaritalStatus__pc",
+            "MIDDLE_NAME": "[&1].record.CMiddleName__pc",
+            "MOBILE_NO": "[&1].record.PersonMobilePhone",
+            "OCCUPATION": [
+              "[&1].record.Occupation__c",
+              "[&1].record.Occupation__pc"
+            ],
+            "PAN_NO": "[&1].record.PANNumber__c",
+            "PARTY_IDENTIFICATION_TYPE": "[&1].record.PartyType__c",
+            "PARTY_CODE": "[&1].record.PartyCode__c",
+            "PHONE": "[&1].record.Phone",
+            "RECORD_TYPE": "[&1].record.AccountRecordType__c",
+            "SOURCE": "[&1].record.SourceSystem__c",
+            "CLUSTER_ID": "[&1].record.ClusterId__c",
+            "ALTERNATE_PHONE_NO_1": "[&1].record.AlternatePhoneNo1__c",
+            "ALTERNATE_PHONE_NO_2": "[&1].record.AlternatePhoneNo2__c",
+            "PARTY_STATUS": "[&1].record.PartyStatus__c",
+            "POLICY_HOLDER_IS_ASHA_OR_MGNREGA": "[&1].record.PolicyHolderisASHAORMGNREGA__c",
+            "SALUTATION": "[&1].record.Salutation__pc"
+          }
+        }
+      },
+      {
+        "operation": "default",
+        "spec": {
+          "*": {
+            "record": {
+              "AadharNumber__c": null,
+              "AccountType__c": null,
+              "BankAccountNumber__c": null,
+              "BankBranchCode__c": null,
+              "CKYCStatus__c": null,
+              "CKYCNUMBER__c": null,
+              "CustomerProfile__c": null,
+              "PersonBirthdate": null,
+              "DLUniqueId__c": null,
+              "PersonEmail": null,
+              "FirstName": null,
+              "CFirstName__pc": null,
+              "PersonGenderIdentity": null,
+              "HealthId__c": null,
+              "LastName": null,
+              "CLastName__pc": null,
+              "PersonMailingCity": null,
+              "PersonMailingCountry": null,
+              "PersonMailingState": null,
+              "PersonMailingStreet": null,
+              "PersonMailingPostalCode": null,
+              "MaritalStatus__pc": null,
+              "CMiddleName__pc": null,
+              "PersonMobilePhone": null,
+              "Occupation__c": null,
+              "Occupation__pc": null,
+              "PANNumber__c": null,
+              "PartyType__c": null,
+              "PartyCode__c": null,
+              "Phone": null,
+              "AccountRecordType__c": null,
+              "Salutation__pc": null,
+              "SourceSystem__c": null,
+              "ClusterId__c": null,
+              "AlternatePhoneNo1__c": null,
+              "AlternatePhoneNo2__c": null,
+              "AnniversaryDate__c": null,
+              "CallDuration__c": null,
+              "CallStarttime__c": null,
+              "CampaignName__c": null,
+              "Channel__c": null,
+              "CSATScore__c": null,
+              "PersonDepartment": null,
+              "Facebook__c": null,
+              "InitialLeadID__c": null,
+              "LanguageQueue__c": null,
+              "LastActivityTime__c": null,
+              "LeadSource__c": null,
+              "LinkedIn__c": null,
+              "MessageContent__c": null,
+              "MessageSentDateandTime__c": null,
+              "NPS__c": null,
+              "PreferredChannel__c": null,
+              "PreferredLanguage__c": null,
+              "PreferredTimetoCall__c": null,
+              "ReadTime__c": null,
+              "ReadUnread__c": null,
+              "RecordId__c": null,
+              "SecondaryEmail__pc": null,
+              "TicketChannel__c": null,
+              "TicketNumber__c": null,
+              "TicketOwner__c": null,
+              "TicketStatus__c": null,
+              "TicketSubCategory__c": null,
+              "WhatsAppNumber__c": null,
+              "CustomerAppDownloadStatus__c": null,
+              "PolicyHolderisASHAORMGNREGA__c": null,
+              "LastModifiedDate": null,
+              "CreatedDate": null,
+              "RecordType.Name": "Person Account",
+              "BillingCountry": "India",
+              "PartyStatus__c": null
+            },
+            "entity": "customer",
+            "status": "READY"
+          }
+        }
+      }
+    ]
+  },
+  "type": "JOLT_TRANSFORM",
+  "updatedAt": {
+    "$date": "2026-05-04T10:07:54.881Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f09850036362344a93df83"
+  },
+  "name": "sfDecryptCustomerFields",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-28T11:21:52.362Z"
+  },
+  "params": {
+    "updateDataFlow": true,
+    "dataSource": "sinkRecords",
+    "fields": [
+      {
+        "source": "AadharNumber__c",
+        "target": "AadharNumber__c"
+      },
+      {
+        "source": "BankAccountNumber__c",
+        "target": "BankAccountNumber__c"
+      },
+      {
+        "source": "CKYCNUMBER__c",
+        "target": "CKYCNUMBER__c"
+      },
+      {
+        "source": "PersonBirthdate",
+        "target": "PersonBirthdate"
+      },
+      {
+        "source": "PersonEmail",
+        "target": "PersonEmail"
+      },
+      {
+        "source": "PersonMobilePhone",
+        "target": "PersonMobilePhone"
+      },
+      {
+        "source": "PANNumber__c",
+        "target": "PANNumber__c"
+      },
+      {
+        "source": "Phone",
+        "target": "Phone"
+      },
+      {
+        "source": "AlternatePhoneNo1__c",
+        "target": "AlternatePhoneNo1__c"
+      },
+      {
+        "source": "AlternatePhoneNo2__c",
+        "target": "AlternatePhoneNo2__c"
+      }
+    ]
+  },
+  "type": "DECRYPT",
+  "updatedAt": {
+    "$date": "2026-04-30T19:10:52.506Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f098ca036362344a94597a"
+  },
+  "name": "salesforceBatchId",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-28T11:23:54.182Z"
+  },
+  "params": {
+    "request": {
+      "endpoint": {
+        "basePath": "salesforce.basePath",
+        "url": "/services/data/v64.0/jobs/ingest",
+        "method": "POST"
+      },
+      "headers": {
+        "authorization": "Bearer ${TOKEN}"
+      },
+      "body": [
+        {
+          "name": "object",
+          "value": "${ENTITY}",
+          "type": "dynamic"
+        },
+        {
+          "name": "operation",
+          "value": "upsert",
+          "type": "static"
+        },
+        {
+          "name": "contentType",
+          "value": "CSV",
+          "type": "static"
+        },
+        {
+          "name": "lineEnding",
+          "value": "CRLF",
+          "type": "static"
+        },
+        {
+          "name": "externalIdFieldName",
+          "value": "${FIELD_NAME}",
+          "type": "dynamic"
+        }
+      ],
+      "variables": [
+        {
+          "name": "TOKEN",
+          "value": "salesForceAccessToken.accessToken",
+          "type": "context"
+        },
+        {
+          "name": "ENTITY",
+          "value": "getSalesForceEntity",
+          "type": "implementation"
+        },
+        {
+          "name": "FIELD_NAME",
+          "value": "getSalesForceFieldName",
+          "type": "implementation"
+        }
+      ]
+    },
+    "response": {
+      "params": [
+        {
+          "key": "referenceId",
+          "value": "id"
+        }
+      ]
+    }
+  },
+  "type": "API",
+  "updatedAt": {
+    "$date": "2026-04-28T11:23:54.182Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f098ce036362344a945d37"
+  },
+  "name": "generateLFCSV",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-28T11:23:58.408Z"
+  },
+  "params": {
+    "columns": null,
+    "writeToFile": false
+  },
+  "type": "JSON_TO_CSV",
+  "updatedAt": {
+    "$date": "2026-04-28T11:23:58.408Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f098d4036362344a946346"
+  },
+  "name": "generateCRLFCSV",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-28T11:24:04.730Z"
+  },
+  "params": {
+    "columns": null,
+    "lineEnding": "\r\n",
+    "writeToFile": false
+  },
+  "type": "JSON_TO_CSV",
+  "updatedAt": {
+    "$date": "2026-04-28T11:24:04.730Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f098dc036362344a946a1e"
+  },
+  "name": "salesforceJobInfo",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-28T11:24:12.749Z"
+  },
+  "params": {
+    "request": {
+      "endpoint": {
+        "basePath": "salesforce.basePath",
+        "url": "/services/data/v64.0/jobs/ingest/${BATCH_JOB_ID}",
+        "method": "GET"
+      },
+      "headers": {
+        "authorization": "Bearer ${TOKEN}"
+      },
+      "variables": [
+        {
+          "name": "BATCH_JOB_ID",
+          "type": "context",
+          "value": "REFERENCE_ID"
+        },
+        {
+          "name": "TOKEN",
+          "type": "context",
+          "value": "salesForceAccessToken.accessToken"
+        }
+      ]
+    },
+    "response": {
+      "params": [
+        {
+          "key": "jobStatus",
+          "value": "state"
+        },
+        {
+          "key": "successRecordCount",
+          "value": "numberRecordsProcessed"
+        },
+        {
+          "key": "failedRecordCount",
+          "value": "numberRecordsFailed"
+        },
+        {
+          "key": "errorMessage",
+          "value": "errorMessage"
+        }
+      ]
+    }
+  },
+  "type": "API",
+  "updatedAt": {
+    "$date": "2026-04-28T11:24:12.749Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f098e1036362344a946e99"
+  },
+  "name": "salesforceCloseBatch",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-28T11:24:17.979Z"
+  },
+  "params": {
+    "request": {
+      "endpoint": {
+        "basePath": "salesforce.basePath",
+        "url": "/services/data/v64.0/jobs/ingest/${BATCH_JOB_ID}",
+        "method": "PATCH"
+      },
+      "headers": {
+        "authorization": "Bearer ${TOKEN}"
+      },
+      "body": [
+        {
+          "name": "state",
+          "type": "static",
+          "value": "UploadComplete"
+        }
+      ],
+      "variables": [
+        {
+          "name": "BATCH_JOB_ID",
+          "type": "context",
+          "value": "salesforceBatchId.referenceId"
+        },
+        {
+          "name": "TOKEN",
+          "type": "context",
+          "value": "salesForceAccessToken.accessToken"
+        }
+      ]
+    },
+    "response": {
+      "params": [
+        {
+          "key": "referenceId",
+          "value": "id"
+        }
+      ]
+    }
+  },
+  "type": "API",
+  "updatedAt": {
+    "$date": "2026-04-28T11:24:17.979Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f098e6036362344a9472da"
+  },
+  "name": "salesforceUploadCustomers",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-28T11:24:22.492Z"
+  },
+  "params": {
+    "request": {
+      "endpoint": {
+        "basePath": "salesforce.basePath",
+        "url": "/services/data/v64.0/jobs/ingest/${BATCH_JOB_ID}/batches",
+        "method": "PUT"
+      },
+      "headers": {
+        "content-type": "text/csv; charset=UTF-8",
+        "authorization": "Bearer ${TOKEN}"
+      },
+      "rawBody": "${CSV_DATA}",
+      "variables": [
+        {
+          "name": "BATCH_JOB_ID",
+          "type": "context",
+          "value": "salesforceBatchId.referenceId"
+        },
+        {
+          "name": "TOKEN",
+          "type": "context",
+          "value": "salesForceAccessToken.accessToken"
+        },
+        {
+          "name": "CSV_DATA",
+          "type": "context",
+          "value": "generateSFCustomerCSV"
+        }
+      ]
+    },
+    "response": null
+  },
+  "type": "API",
+  "updatedAt": {
+    "$date": "2026-04-28T11:24:22.492Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f098f2036362344a947de9"
+  },
+  "name": "salesforceSuccessEntries",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-28T11:24:34.601Z"
+  },
+  "params": {
+    "request": {
+      "endpoint": {
+        "basePath": "salesforce.basePath",
+        "url": "/services/data/v64.0/jobs/ingest/${BATCH_JOB_ID}/successfulResults",
+        "method": "GET"
+      },
+      "headers": {
+        "authorization": "Bearer ${TOKEN}"
+      },
+      "variables": [
+        {
+          "name": "BATCH_JOB_ID",
+          "type": "context",
+          "value": "REFERENCE_ID"
+        },
+        {
+          "name": "TOKEN",
+          "type": "context",
+          "value": "salesForceAccessToken.accessToken"
+        }
+      ]
+    },
+    "response": {
+      "type": "CSV"
+    }
+  },
+  "type": "API",
+  "updatedAt": {
+    "$date": "2026-04-28T11:24:34.601Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f098f7036362344a94829d"
+  },
+  "name": "sfCustomerSuccessRecordsJson",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-28T11:24:39.137Z"
+  },
+  "params": {
+    "source": "salesforceSuccessEntries.response",
+    "columns": {
+      "DLUniqueId__c": "recordId"
+    }
+  },
+  "type": "CSV_TO_JSON",
+  "updatedAt": {
+    "$date": "2026-04-28T11:24:39.137Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f098fc036362344a9486dd"
+  },
+  "name": "sfCustomerFailedRecordsJson",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-28T11:24:44.236Z"
+  },
+  "params": {
+    "source": "salesforceFailedEntries.response",
+    "columns": {
+      "DLUniqueId__c": "recordId",
+      "sf__Error": "errorMessage"
+    }
+  },
+  "type": "CSV_TO_JSON",
+  "updatedAt": {
+    "$date": "2026-04-28T11:24:44.236Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f09900036362344a948b42"
+  },
+  "name": "salesforceFailedEntries",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-28T11:24:48.965Z"
+  },
+  "params": {
+    "request": {
+      "endpoint": {
+        "basePath": "salesforce.basePath",
+        "url": "/services/data/v64.0/jobs/ingest/${BATCH_JOB_ID}/failedResults",
+        "method": "GET"
+      },
+      "headers": {
+        "authorization": "Bearer ${TOKEN}"
+      },
+      "variables": [
+        {
+          "name": "BATCH_JOB_ID",
+          "type": "context",
+          "value": "REFERENCE_ID"
+        },
+        {
+          "name": "TOKEN",
+          "type": "context",
+          "value": "salesForceAccessToken.accessToken"
+        }
+      ]
+    },
+    "response": {
+      "type": "CSV"
+    }
+  },
+  "type": "API",
+  "updatedAt": {
+    "$date": "2026-04-28T11:24:48.965Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f09906036362344a949162"
+  },
+  "name": "sfCustomerSuccessFailureCombinedRecords",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-28T11:24:54.031Z"
+  },
+  "params": {
+    "config": [
+      {
+        "operation": "shift",
+        "spec": {
+          "salesforceJobInfo": {
+            "jobStatus": {
+              "JobComplete": {
+                "#COMPLETED": "jobStatus"
+              },
+              "Failed": {
+                "#FAILED": "jobStatus"
+              }
+            },
+            "successRecordCount": "successRecordCount",
+            "failedRecordCount": "failedRecordCount",
+            "errorMessage": "errorMessage"
+          },
+          "sfCustomerSuccessRecordsJson": {
+            "*": {
+              "recordId": "successRecords[]"
+            }
+          },
+          "sfCustomerFailedRecordsJson": {
+            "*": {
+              "errorMessage": "failedRecords.@(1,recordId)"
+            }
+          }
+        }
+      },
+      {
+        "operation": "cardinality",
+        "spec": {
+          "failedRecords": {
+            "*": "ONE"
+          }
+        }
+      }
+    ]
+  },
+  "type": "JOLT_TRANSFORM",
+  "updatedAt": {
+    "$date": "2026-04-28T11:24:54.031Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f09918036362344a94a544"
+  },
+  "name": "generateSFCustomerCSV",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-28T11:25:12.738Z"
+  },
+  "params": {
+    "dataSource": "sfCustomerFieldTransformations",
+    "columns": null,
+    "lineEnding": null,
+    "writeToFile": false
+  },
+  "type": "JSON_TO_CSV",
+  "updatedAt": {
+    "$date": "2026-04-29T11:46:17.955Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f1a301036362344a92525b"
+  },
+  "name": "sfCustomerFieldTransformations",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-29T06:19:45.615Z"
+  },
+  "params": {
+    "dataSource": "sfDecryptCustomerFields",
+    "config": [
+      {
+        "source": "PersonBirthdate",
+        "target": "PersonBirthdate",
+        "implementation": "safeConvertToYYYYMMDD"
+      },
+      {
+        "source": "CreatedDate",
+        "target": "CreatedDate",
+        "implementation": "safeConvertToYYYYMMDD"
+      },
+      {
+        "source": "LastModifiedDate",
+        "target": "LastModifiedDate",
+        "implementation": "safeConvertToYYYYMMDD"
+      }
+    ]
+  },
+  "type": "FIELD_TRANSFORM",
+  "updatedAt": {
+    "$date": "2026-04-29T06:20:02.949Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f1dcd83a754d9bcddc4b74"
+  },
+  "name": "sfDecryptOfficeFields",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-28T10:28:52.362Z"
+  },
+  "params": {
+    "dataSource": "sinkRecords",
+    "fields": [
+      {
+        "source": "ContactEmail__c",
+        "target": "ContactEmail__c"
+      },
+      {
+        "source": "MobileNumber__c",
+        "target": "MobileNumber__c"
+      },
+      {
+        "source": "PhoneNumber__c",
+        "target": "PhoneNumber__c"
+      }
+    ]
+  },
+  "type": "DECRYPT",
+  "updatedAt": {
+    "$date": "2026-04-30T13:11:00.178Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f1fb003a754d9bcddc4ba2"
+  },
+  "name": "transformSFOffice",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-28T11:16:51.349Z"
+  },
+  "params": {
+    "updateDataFlow": true,
+    "config": [
+      {
+        "operation": "shift",
+        "spec": {
+          "read": {
+            "data": {
+              "*": {
+                "*": "[&1].@(4,read.columns[&].name)"
+              }
+            }
+          }
+        }
+      },
+      {
+        "operation": "shift",
+        "spec": {
+          "*": {
+            "ADDRESS": "[&1].record.Address__c",
+            "CONTACT_EMAIL": "[&1].record.ContactEmail__c",
+            "CORPORATE_OFFICE": "[&1].record.CorporateOffice__c",
+            "MOBILE_NUMBER": "[&1].record.MobileNumber__c",
+            "OFFICE_CODE": [
+              "[&1].record.OfficeCode__c",
+              "[&1].recordId"
+            ],
+            "OFFICE_NAME": "[&1].record.Name",
+            "PHONE_NUMBER": "[&1].record.PhoneNumber__c",
+            "PIN_CODE": "[&1].record.Pincode__c",
+            "STATE": "[&1].record.State__c",
+            "ZONAL_OFFICE": "[&1].record.ZonalOffice__c",
+            "ZONE_CODE": "[&1].record.ZoneCode__c"
+          }
+        }
+      },
+      {
+        "operation": "default",
+        "spec": {
+          "*": {
+            "entity": "office",
+            "status": "READY"
+          }
+        }
+      },
+      {
+        "operation": "default",
+        "spec": {
+          "*": {
+            "record": {
+              "Address__c": null,
+              "ContactEmail__c": null,
+              "CorporateOffice__c": null,
+              "MobileNumber__c": null,
+              "Name": null,
+              "PhoneNumber__c": null,
+              "Pincode__c": null,
+              "State__c": null,
+              "ZonalOffice__c": null,
+              "ZoneCode__c": null
+            },
+            "entity": "office",
+            "status": "READY"
+          }
+        }
+      }
+    ]
+  },
+  "type": "JOLT_TRANSFORM",
+  "updatedAt": {
+    "$date": "2026-04-30T19:19:05.725Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f34c249b584d01d0e157f7"
+  },
+  "name": "generateSFOfficeCSV",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-28T11:25:12.738Z"
+  },
+  "params": {
+    "dataSource": "sfOfficeFieldTransformations",
+    "columns": null,
+    "lineEnding": "\r\n",
+    "writeToFile": false
+  },
+  "type": "JSON_TO_CSV",
+  "updatedAt": {
+    "$date": "2026-04-29T11:46:17.955Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f34d549b584d01d0e15800"
+  },
+  "name": "salesforceUploadOffice",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-28T11:24:22.492Z"
+  },
+  "params": {
+    "request": {
+      "endpoint": {
+        "basePath": "salesforce.basePath",
+        "url": "/services/data/v64.0/jobs/ingest/${BATCH_JOB_ID}/batches",
+        "method": "PUT"
+      },
+      "headers": {
+        "content-type": "text/csv; charset=UTF-8",
+        "authorization": "Bearer ${TOKEN}"
+      },
+      "rawBody": "${CSV_DATA}",
+      "variables": [
+        {
+          "name": "BATCH_JOB_ID",
+          "type": "context",
+          "value": "salesforceBatchId.referenceId"
+        },
+        {
+          "name": "TOKEN",
+          "type": "context",
+          "value": "salesForceAccessToken.accessToken"
+        },
+        {
+          "name": "CSV_DATA",
+          "type": "context",
+          "value": "generateSFOfficeCSV"
+        }
+      ]
+    },
+    "response": null
+  },
+  "type": "API",
+  "updatedAt": {
+    "$date": "2026-04-28T11:24:22.492Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f35536036362344a6034ce"
+  },
+  "name": "sfOfficeFieldTransformations",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T13:12:22.519Z"
+  },
+  "params": {
+    "dataSource": "sfDecryptOfficeFields",
+    "config": [
+      {
+        "source": "ZonalOffice__c",
+        "target": "ZonalOffice__c",
+        "implementation": "safeConvertToBoolean"
+      }
+    ]
+  },
+  "type": "FIELD_TRANSFORM",
+  "updatedAt": {
+    "$date": "2026-04-30T13:12:22.519Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3a42f036362344aa4c0c0"
+  },
+  "name": "sfOfficeSuccessRecordsJson",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T18:49:19.135Z"
+  },
+  "params": {
+    "source": "salesforceSuccessEntries.response",
+    "columns": {
+      "OfficeCode__c": "recordId"
+    }
+  },
+  "type": "CSV_TO_JSON",
+  "updatedAt": {
+    "$date": "2026-04-30T18:49:19.135Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3a449036362344aa4d601"
+  },
+  "name": "sfOfficeFailedRecordsJson",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T18:49:45.905Z"
+  },
+  "params": {
+    "source": "salesforceFailedEntries.response",
+    "columns": {
+      "DLUniqueId__c": "recordId",
+      "sf__Error": "errorMessage"
+    }
+  },
+  "type": "CSV_TO_JSON",
+  "updatedAt": {
+    "$date": "2026-04-30T18:49:45.905Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3a47a036362344aa50c95"
+  },
+  "name": "sfOfficeSuccessFailureCombinedRecords",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T18:50:34.098Z"
+  },
+  "params": {
+    "config": [
+      {
+        "operation": "shift",
+        "spec": {
+          "salesforceJobInfo": {
+            "jobStatus": {
+              "JobComplete": {
+                "#COMPLETED": "jobStatus"
+              },
+              "Failed": {
+                "#FAILED": "jobStatus"
+              }
+            },
+            "successRecordCount": "successRecordCount",
+            "failedRecordCount": "failedRecordCount",
+            "errorMessage": "errorMessage"
+          },
+          "sfOfficeSuccessRecordsJson": {
+            "*": {
+              "recordId": "successRecords[]"
+            }
+          },
+          "sfOfficeFailedRecordsJson": {
+            "*": {
+              "errorMessage": "failedRecords.@(1,recordId)"
+            }
+          }
+        }
+      },
+      {
+        "operation": "cardinality",
+        "spec": {
+          "failedRecords": {
+            "*": "ONE"
+          }
+        }
+      }
+    ]
+  },
+  "type": "JOLT_TRANSFORM",
+  "updatedAt": {
+    "$date": "2026-04-30T18:50:34.098Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3af06036362344aadd844"
+  },
+  "name": "transformSFAgents",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T19:35:34.319Z"
+  },
+  "params": {
+    "updateDataFlow": true,
+    "config": [
+      {
+        "operation": "shift",
+        "spec": {
+          "read": {
+            "data": {
+              "*": {
+                "*": "[&1].@(4,read.columns[&].name)"
+              }
+            }
+          }
+        }
+      },
+      {
+        "operation": "shift",
+        "spec": {
+          "*": {
+            "AGENT_CODE": [
+              "[&1].record.AgentCode__c",
+              "[&1].recordId"
+            ],
+            "AGENT_FIRST_NAME": "[&1].record.FirstName",
+            "AGENT_LAST_NAME": "[&1].record.LastName",
+            "CITY": "[&1].record.PersonMailingCity",
+            "COUNTRY": "[&1].record.PersonMailingCountry",
+            "STATE": "[&1].record.PersonMailingState",
+            "STREET": "[&1].record.PersonMailingStreet",
+            "PIN_CODE": "[&1].record.PersonMailingPostalCode",
+            "GENDER": "[&1].record.PersonGenderIdentity",
+            "AGENT_DOB": "[&1].record.PersonBirthdate",
+            "AGENT_DOJ": "[&1].record.AgentDOJ__c",
+            "VINTAGE": "[&1].record.Vintage__c",
+            "AGENT_TYPE": "[&1].record.AgentType__c",
+            "AGENT_MOBILE_NO": "[&1].record.PersonMobilePhone",
+            "AGENT_EMAIL_ID": "[&1].record.PersonEmail",
+            "BRANCH_CODE": "[&1].record.Branch__r\\.OfficeCode__c",
+            "SM_CODE": "[&1].record.SalesManager__r\\.SMCode__c",
+            "SM_NAME": "[&1].record.SMName__c"
+          }
+        }
+      },
+      {
+        "operation": "default",
+        "spec": {
+          "*": {
+            "record": {
+              "AgentCode__c": null,
+              "FirstName": null,
+              "LastName": null,
+              "PersonMailingCity": null,
+              "PersonMailingCountry": null,
+              "PersonMailingState": null,
+              "PersonMailingStreet": null,
+              "PersonMailingPostalCode": null,
+              "PersonGenderIdentity": null,
+              "PersonBirthdate": null,
+              "AgentDOJ__c": null,
+              "Vintage__c": null,
+              "AgentType__c": null,
+              "PersonMobilePhone": null,
+              "PersonEmail": null,
+              "Branch__r.OfficeCode__c": null,
+              "SalesManager__r.SMCode__c": null,
+              "SMName__c": null,
+              "RecordType.Name": "Agent Individual",
+              "CFirstName__pc": null,
+              "CLastName__pc": null,
+              "Name": null
+            },
+            "entity": "agent",
+            "status": "READY"
+          }
+        }
+      }
+    ]
+  },
+  "type": "JOLT_TRANSFORM",
+  "updatedAt": {
+    "$date": "2026-05-04T12:44:07.167Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3b094036362344aaf2157"
+  },
+  "name": "sfDecryptAgentFields",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T19:42:12.525Z"
+  },
+  "params": {
+    "dataSource": "sinkRecords",
+    "fields": [
+      {
+        "source": "PersonBirthdate",
+        "target": "PersonBirthdate"
+      },
+      {
+        "source": "PersonMobilePhone",
+        "target": "PersonMobilePhone"
+      },
+      {
+        "source": "PersonEmail",
+        "target": "PersonEmail"
+      }
+    ]
+  },
+  "type": "DECRYPT",
+  "updatedAt": {
+    "$date": "2026-04-30T19:42:12.525Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3b0b8036362344aaf3d13"
+  },
+  "name": "sfAgentFieldTransformations",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T19:42:48.615Z"
+  },
+  "params": {
+    "dataSource": "sfDecryptAgentFields",
+    "config": [
+      {
+        "source": "PersonBirthdate",
+        "target": "PersonBirthdate",
+        "implementation": "safeConvertDateDDMMMYYToYYYYMMDD"
+      }
+    ]
+  },
+  "type": "FIELD_TRANSFORM",
+  "updatedAt": {
+    "$date": "2026-04-30T19:42:48.615Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3b0f0036362344aaf67d3"
+  },
+  "name": "generateSFAgentCSV",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T19:43:44.506Z"
+  },
+  "params": {
+    "dataSource": "sfAgentFieldTransformations",
+    "columns": null,
+    "lineEnding": "\r\n",
+    "writeToFile": false
+  },
+  "type": "JSON_TO_CSV",
+  "updatedAt": {
+    "$date": "2026-05-04T12:46:09.119Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3b118036362344aaf8680"
+  },
+  "name": "sfAgentSuccessRecordsJson",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T19:44:24.970Z"
+  },
+  "params": {
+    "source": "salesforceSuccessEntries.response",
+    "columns": {
+      "AgentCode__c": "recordId"
+    }
+  },
+  "type": "CSV_TO_JSON",
+  "updatedAt": {
+    "$date": "2026-04-30T19:44:24.970Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3b126036362344aaf91bf"
+  },
+  "name": "sfAgentFailedRecordsJson",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T19:44:38.720Z"
+  },
+  "params": {
+    "source": "salesforceFailedEntries.response",
+    "columns": {
+      "AgentCode__c": "recordId",
+      "sf__Error": "errorMessage"
+    }
+  },
+  "type": "CSV_TO_JSON",
+  "updatedAt": {
+    "$date": "2026-04-30T19:44:38.720Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3b141036362344aafaa9e"
+  },
+  "name": "sfAgentSuccessFailureCombinedRecords",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T19:45:05.510Z"
+  },
+  "params": {
+    "config": [
+      {
+        "operation": "shift",
+        "spec": {
+          "salesforceJobInfo": {
+            "jobStatus": {
+              "JobComplete": {
+                "#COMPLETED": "jobStatus"
+              },
+              "Failed": {
+                "#FAILED": "jobStatus"
+              }
+            },
+            "successRecordCount": "successRecordCount",
+            "failedRecordCount": "failedRecordCount",
+            "errorMessage": "errorMessage"
+          },
+          "sfAgentSuccessRecordsJson": {
+            "*": {
+              "recordId": "successRecords[]"
+            }
+          },
+          "sfAgentFailedRecordsJson": {
+            "*": {
+              "errorMessage": "failedRecords.@(1,recordId)"
+            }
+          }
+        }
+      },
+      {
+        "operation": "cardinality",
+        "spec": {
+          "failedRecords": {
+            "*": "ONE"
+          }
+        }
+      }
+    ]
+  },
+  "type": "JOLT_TRANSFORM",
+  "updatedAt": {
+    "$date": "2026-04-30T19:45:05.510Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3b484036362344ab2482d"
+  },
+  "name": "transformSFHospitals",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T19:59:00.801Z"
+  },
+  "params": {
+    "updateDataFlow": true,
+    "config": [
+      {
+        "operation": "shift",
+        "spec": {
+          "read": {
+            "data": {
+              "*": {
+                "*": "[&1].@(4,read.columns[&].name)"
+              }
+            }
+          }
+        }
+      },
+      {
+        "operation": "shift",
+        "spec": {
+          "*": {
+            "shaiHospitalId": [
+              "[&1].record.HospitalId__c",
+              "[&1].recordId"
+            ],
+            "hospitalName": "[&1].record.Name",
+            "hospitalIsActive": "[&1].record.HospitalsActive__c",
+            "hospitalIsPpn": "[&1].record.HospitalPPN__c",
+            "hospitalRegistrationCode": "[&1].record.HospitalRegistrationCode__c",
+            "rohiniCode": "[&1].record.ROHINICode__c",
+            "isNetworkHospital": "[&1].record.IsNetworkHospital__c",
+            "empanelmentEndDate": "[&1].record.EmpanelmentEndDate__c",
+            "isBlacklisted": "[&1].record.IsBlacklisted__c",
+            "isCaution": "[&1].record.IsCaution__c",
+            "specialityType": "[&1].record.SpecialityType__c",
+            "bedCount": "[&1].record.BedCount__c",
+            "hospitalPanNumber": "[&1].record.HospitalPANNumber__c",
+            "hospitalFlag_falg": "[&1].record.HospitalFlag__c",
+            "hospitalFlag_date": "[&1].record.HospitalDate__c",
+            "hospitalFlag_reason": "[&1].record.HospitalReason__c",
+            "prathamFlag": "[&1].record.PrathamFlag__c",
+            "hospitalGrade": "[&1].record.HospitalGrade__c",
+            "socFlag": "[&1].record.SOCFlag__c",
+            "hospitalState": "[&1].record.BillingState",
+            "hospitalAddr1": "[&1].record.BillingStreet",
+            "hospitalCityId": "[&1].record.BillingCity",
+            "hospitalPincode": "[&1].record.BillingPostalCode",
+            "hospitalContact": "[&1].record.Phone",
+            "cpuCode": "[&1].record.CPUCode__c",
+            "networkHospType": "[&1].record.NetworkHospitalType__c"
+          }
+        }
+      },
+      {
+        "operation": "default",
+        "spec": {
+          "*": {
+            "record": {
+              "Name": null,
+              "HospitalsActive__c": null,
+              "HospitalPPN__c": null,
+              "HospitalRegistrationCode__c": null,
+              "ROHINICode__c": null,
+              "IsNetworkHospital__c": null,
+              "EmpanelmentEndDate__c": null,
+              "IsBlacklisted__c": null,
+              "IsCaution__c": null,
+              "SpecialityType__c": null,
+              "BedCount__c": null,
+              "HospitalPANNumber__c": null,
+              "HospitalFlag__c": null,
+              "HospitalDate__c": null,
+              "HospitalReason__c": null,
+              "PrathamFlag__c": null,
+              "HospitalGrade__c": null,
+              "SOCFlag__c": null,
+              "BillingState": null,
+              "BillingStreet": null,
+              "BillingCity": null,
+              "BillingPostalCode": null,
+              "Phone": null,
+              "CPUCode__c": null,
+              "NetworkHospitalType__c": null,
+              "RecordType.Name": "Hospital Master",
+              "BillingCountry": "India"
+            },
+            "entity": "hospital",
+            "status": "READY"
+          }
+        }
+      }
+    ]
+  },
+  "type": "JOLT_TRANSFORM",
+  "updatedAt": {
+    "$date": "2026-04-30T19:59:00.801Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3b5a8036362344ab35654"
+  },
+  "name": "sfHospitalFieldTransformations",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T20:03:52.510Z"
+  },
+  "params": {
+    "dataSource": "sinkRecords",
+    "config": [
+      {
+        "source": "BillingStreet",
+        "target": "BillingStreet",
+        "implementation": "safeTruncateString255"
+      },
+      {
+        "source": "HospitalDate__c",
+        "target": "HospitalDate__c",
+        "implementation": "safeConvertDateDDMMMYYToYYYYMMDD"
+      },
+      {
+        "source": "EmpanelmentEndDate__c",
+        "target": "EmpanelmentEndDate__c",
+        "implementation": "safeConvertToDateTime"
+      },
+      {
+        "source": "BedCount__c",
+        "target": "BedCount__c",
+        "implementation": "safeConvertToLong"
+      },
+      {
+        "source": "BillingPostalCode",
+        "target": "BillingPostalCode",
+        "implementation": "safeConvertToLong"
+      },
+      {
+        "source": "HospitalPPN__c",
+        "target": "HospitalPPN__c",
+        "implementation": "safeConvertToBoolean"
+      },
+      {
+        "source": "IsNetworkHospital__c",
+        "target": "IsNetworkHospital__c",
+        "implementation": "safeConvertToBoolean"
+      },
+      {
+        "source": "IsBlacklisted__c",
+        "target": "IsBlacklisted__c",
+        "implementation": "safeConvertToBoolean"
+      },
+      {
+        "source": "IsCaution__c",
+        "target": "IsCaution__c",
+        "implementation": "safeConvertToBoolean"
+      }
+    ]
+  },
+  "type": "FIELD_TRANSFORM",
+  "updatedAt": {
+    "$date": "2026-04-30T20:03:52.510Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3b5c6036362344ab36cac"
+  },
+  "name": "generateSFHospitalCSV",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T20:04:22.189Z"
+  },
+  "params": {
+    "dataSource": "sfHospitalFieldTransformations",
+    "columns": null,
+    "lineEnding": "\r\n",
+    "writeToFile": false
+  },
+  "type": "JSON_TO_CSV",
+  "updatedAt": {
+    "$date": "2026-04-30T20:04:22.189Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3b5e7036362344ab38512"
+  },
+  "name": "sfHospitalSuccessRecordsJson",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T20:04:55.178Z"
+  },
+  "params": {
+    "source": "salesforceSuccessEntries.response",
+    "columns": {
+      "HospitalId__c": "recordId"
+    }
+  },
+  "type": "CSV_TO_JSON",
+  "updatedAt": {
+    "$date": "2026-04-30T20:04:55.178Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3b5f4036362344ab390fe"
+  },
+  "name": "sfHospitalFailedRecordsJson",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T20:05:08.744Z"
+  },
+  "params": {
+    "source": "salesforceFailedEntries.response",
+    "columns": {
+      "HospitalId__c": "recordId",
+      "sf__Error": "errorMessage"
+    }
+  },
+  "type": "CSV_TO_JSON",
+  "updatedAt": {
+    "$date": "2026-04-30T20:05:08.744Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3b61b036362344ab3aff5"
+  },
+  "name": "sfHospitalSuccessFailureCombinedRecords",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T20:05:47.795Z"
+  },
+  "params": {
+    "config": [
+      {
+        "operation": "shift",
+        "spec": {
+          "salesforceJobInfo": {
+            "jobStatus": {
+              "JobComplete": {
+                "#COMPLETED": "jobStatus"
+              },
+              "Failed": {
+                "#FAILED": "jobStatus"
+              }
+            },
+            "successRecordCount": "successRecordCount",
+            "failedRecordCount": "failedRecordCount",
+            "errorMessage": "errorMessage"
+          },
+          "sfHospitalSuccessRecordsJson": {
+            "*": {
+              "recordId": "successRecords[]"
+            }
+          },
+          "sfHospitalFailedRecordsJson": {
+            "*": {
+              "errorMessage": "failedRecords.@(1,recordId)"
+            }
+          }
+        }
+      },
+      {
+        "operation": "cardinality",
+        "spec": {
+          "failedRecords": {
+            "*": "ONE"
+          }
+        }
+      }
+    ]
+  },
+  "type": "JOLT_TRANSFORM",
+  "updatedAt": {
+    "$date": "2026-04-30T20:05:47.795Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3b6f0036362344ab44eee"
+  },
+  "name": "salesforceUploadAgent",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T20:09:20.481Z"
+  },
+  "params": {
+    "request": {
+      "endpoint": {
+        "basePath": "salesforce.basePath",
+        "url": "/services/data/v64.0/jobs/ingest/${BATCH_JOB_ID}/batches",
+        "method": "PUT"
+      },
+      "headers": {
+        "content-type": "text/csv; charset=UTF-8",
+        "authorization": "Bearer ${TOKEN}"
+      },
+      "rawBody": "${CSV_DATA}",
+      "variables": [
+        {
+          "name": "BATCH_JOB_ID",
+          "type": "context",
+          "value": "salesforceBatchId.referenceId"
+        },
+        {
+          "name": "TOKEN",
+          "type": "context",
+          "value": "salesForceAccessToken.accessToken"
+        },
+        {
+          "name": "CSV_DATA",
+          "type": "context",
+          "value": "generateSFAgentCSV"
+        }
+      ]
+    },
+    "response": null
+  },
+  "type": "API",
+  "updatedAt": {
+    "$date": "2026-04-30T20:15:11.865Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3b857036362344ab5859c"
+  },
+  "name": "salesforceUploadHospital",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T20:15:19.095Z"
+  },
+  "params": {
+    "request": {
+      "endpoint": {
+        "basePath": "salesforce.basePath",
+        "url": "/services/data/v64.0/jobs/ingest/${BATCH_JOB_ID}/batches",
+        "method": "PUT"
+      },
+      "headers": {
+        "content-type": "text/csv; charset=UTF-8",
+        "authorization": "Bearer ${TOKEN}"
+      },
+      "rawBody": "${CSV_DATA}",
+      "variables": [
+        {
+          "name": "BATCH_JOB_ID",
+          "type": "context",
+          "value": "salesforceBatchId.referenceId"
+        },
+        {
+          "name": "TOKEN",
+          "type": "context",
+          "value": "salesForceAccessToken.accessToken"
+        },
+        {
+          "name": "CSV_DATA",
+          "type": "context",
+          "value": "generateSFHospitalCSV"
+        }
+      ]
+    },
+    "response": null
+  },
+  "type": "API",
+  "updatedAt": {
+    "$date": "2026-04-30T20:15:19.095Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3b935036362344ab6369f"
+  },
+  "name": "sfDecryptPolicyFields",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T20:19:01.165Z"
+  },
+  "params": {
+    "updateDataFlow": true,
+    "dataSource": "sinkRecords",
+    "fields": [
+      {
+        "source": "SalesManagerPhone__c",
+        "target": "SalesManagerPhone__c"
+      }
+    ]
+  },
+  "type": "DECRYPT",
+  "updatedAt": {
+    "$date": "2026-04-30T20:19:01.165Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3ba09036362344ab6efe5"
+  },
+  "name": "sfPolicyFieldTransformations",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T20:22:33.345Z"
+  },
+  "params": {
+    "dataSource": "sfDecryptPolicyFields",
+    "config": [
+      {
+        "source": "ProposalCreationDate__c",
+        "target": "ProposalCreationDate__c",
+        "implementation": "safeConvertToDateTime"
+      },
+      {
+        "source": "PolicyConvertedDate__c",
+        "target": "PolicyConvertedDate__c",
+        "implementation": "safeConvertToDateTime"
+      },
+      {
+        "source": "PolicyInceptionDate__c",
+        "target": "PolicyInceptionDate__c",
+        "implementation": "safeConvertToYYYYMMDD"
+      },
+      {
+        "source": "PolicyExpiryDate__c",
+        "target": "PolicyExpiryDate__c",
+        "implementation": "safeConvertToYYYYMMDD"
+      },
+      {
+        "source": "GracePeriodEndDate__c",
+        "target": "GracePeriodEndDate__c",
+        "implementation": "safeConvertToYYYYMMDD"
+      },
+      {
+        "source": "PolicyCancellationDate__c",
+        "target": "PolicyCancellationDate__c",
+        "implementation": "safeConvertToDateTime"
+      },
+      {
+        "source": "LastPaymentDate__c",
+        "target": "LastPaymentDate__c",
+        "implementation": "safeConvertToYYYYMMDD"
+      },
+      {
+        "source": "PremiumPaidTillDate__c",
+        "target": "PremiumPaidTillDate__c",
+        "implementation": "safeConvertToDecimal"
+      },
+      {
+        "source": "PolicyPeriod__c",
+        "target": "PolicyPeriod__c",
+        "implementation": "safeConvertToLong"
+      },
+      {
+        "source": "SumInsured__c",
+        "target": "SumInsured__c",
+        "implementation": "safeConvertToLong"
+      },
+      {
+        "source": "GSTAmt__c",
+        "target": "GSTAmt__c",
+        "implementation": "safeConvertToLong"
+      },
+      {
+        "source": "TotalPremium__c",
+        "target": "TotalPremium__c",
+        "implementation": "safeConvertToLong"
+      },
+      {
+        "source": "NoOfMembers__c",
+        "target": "NoOfMembers__c",
+        "implementation": "safeConvertToLong"
+      },
+      {
+        "source": "OnlineDiscount__c",
+        "target": "OnlineDiscount__c",
+        "implementation": "safeConvertToLong"
+      },
+      {
+        "source": "NoClaimDiscount__c",
+        "target": "NoClaimDiscount__c",
+        "implementation": "safeConvertToLong"
+      },
+      {
+        "source": "WellnessDiscount__c",
+        "target": "WellnessDiscount__c",
+        "implementation": "safeConvertToLong"
+      },
+      {
+        "source": "Branch__r.OfficeCode__c",
+        "target": "Branch__r.OfficeCode__c",
+        "implementation": "safeConvertToLong"
+      },
+      {
+        "source": "LastPaymentAmount__c",
+        "target": "LastPaymentAmount__c",
+        "implementation": "safeConvertToLong"
+      },
+      {
+        "source": "TotalEMICount__c",
+        "target": "TotalEMICount__c",
+        "implementation": "safeConvertToLong"
+      },
+      {
+        "source": "CountOfEMIPaid__c",
+        "target": "CountOfEMIPaid__c",
+        "implementation": "safeConvertToLong"
+      },
+      {
+        "source": "CountOfEMIDue__c",
+        "target": "CountOfEMIDue__c",
+        "implementation": "safeConvertToLong"
+      },
+      {
+        "source": "CopayOpted__c",
+        "target": "CopayOpted__c",
+        "implementation": "safeConvertToBoolean"
+      },
+      {
+        "source": "LastClaimInitiationDate__c",
+        "target": "LastClaimInitiationDate__c",
+        "implementation": "safeConvertToYYYYMMDD"
+      },
+      {
+        "source": "CumulativeBonus__c",
+        "target": "CumulativeBonus__c",
+        "implementation": "safeConvertToLong"
+      },
+      {
+        "source": "BalancePremium__c",
+        "target": "BalancePremium__c",
+        "implementation": "safeConvertToLong"
+      }
+    ]
+  },
+  "type": "FIELD_TRANSFORM",
+  "updatedAt": {
+    "$date": "2026-06-24T10:45:16.596Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3ba1b036362344ab6ff43"
+  },
+  "name": "generateSFPolicyCSV",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T20:22:51.785Z"
+  },
+  "params": {
+    "dataSource": "sfPolicyFieldTransformations",
+    "columns": null,
+    "lineEnding": "\r\n",
+    "writeToFile": false
+  },
+  "type": "JSON_TO_CSV",
+  "updatedAt": {
+    "$date": "2026-04-30T20:22:51.785Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3ba3d036362344ab71c20"
+  },
+  "name": "salesforceUploadPolicies",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T20:23:25.459Z"
+  },
+  "params": {
+    "request": {
+      "endpoint": {
+        "basePath": "salesforce.basePath",
+        "url": "/services/data/v64.0/jobs/ingest/${BATCH_JOB_ID}/batches",
+        "method": "PUT"
+      },
+      "headers": {
+        "content-type": "text/csv; charset=UTF-8",
+        "authorization": "Bearer ${TOKEN}"
+      },
+      "rawBody": "${CSV_DATA}",
+      "variables": [
+        {
+          "name": "BATCH_JOB_ID",
+          "type": "context",
+          "value": "salesforceBatchId.referenceId"
+        },
+        {
+          "name": "TOKEN",
+          "type": "context",
+          "value": "salesForceAccessToken.accessToken"
+        },
+        {
+          "name": "CSV_DATA",
+          "type": "context",
+          "value": "generateSFPolicyCSV"
+        }
+      ]
+    },
+    "response": null
+  },
+  "type": "API",
+  "updatedAt": {
+    "$date": "2026-04-30T20:23:25.459Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3ba61036362344ab73d38"
+  },
+  "name": "sfPolicySuccessRecordsJson",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T20:24:01.370Z"
+  },
+  "params": {
+    "source": "salesforceSuccessEntries.response",
+    "columns": {
+      "PolicyNumber__c": "recordId"
+    }
+  },
+  "type": "CSV_TO_JSON",
+  "updatedAt": {
+    "$date": "2026-04-30T20:24:01.370Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3ba6d036362344ab74710"
+  },
+  "name": "sfPolicyFailedRecordsJson",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T20:24:13.459Z"
+  },
+  "params": {
+    "source": "salesforceFailedEntries.response",
+    "columns": {
+      "PolicyNumber__c": "recordId",
+      "sf__Error": "errorMessage"
+    }
+  },
+  "type": "CSV_TO_JSON",
+  "updatedAt": {
+    "$date": "2026-04-30T20:24:13.459Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3ba8a036362344ab75c8c"
+  },
+  "name": "sfPolicySuccessFailureCombinedRecords",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T20:24:42.334Z"
+  },
+  "params": {
+    "config": [
+      {
+        "operation": "shift",
+        "spec": {
+          "salesforceJobInfo": {
+            "jobStatus": {
+              "JobComplete": {
+                "#COMPLETED": "jobStatus"
+              },
+              "Failed": {
+                "#FAILED": "jobStatus"
+              }
+            },
+            "successRecordCount": "successRecordCount",
+            "failedRecordCount": "failedRecordCount",
+            "errorMessage": "errorMessage"
+          },
+          "sfPolicySuccessRecordsJson": {
+            "*": {
+              "recordId": "successRecords[]"
+            }
+          },
+          "sfPolicyFailedRecordsJson": {
+            "*": {
+              "errorMessage": "failedRecords.@(1,recordId)"
+            }
+          }
+        }
+      },
+      {
+        "operation": "cardinality",
+        "spec": {
+          "failedRecords": {
+            "*": "ONE"
+          }
+        }
+      }
+    ]
+  },
+  "type": "JOLT_TRANSFORM",
+  "updatedAt": {
+    "$date": "2026-04-30T20:24:42.334Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3bc11036362344ab8a981"
+  },
+  "name": "transformSFPolicyMembers",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T20:31:13.538Z"
+  },
+  "params": {
+    "updateDataFlow": true,
+    "config": [
+      {
+        "operation": "shift",
+        "spec": {
+          "read": {
+            "data": {
+              "*": {
+                "*": "[&1].@(4,read.columns[&].name)"
+              }
+            }
+          }
+        }
+      },
+      {
+        "operation": "shift",
+        "spec": {
+          "*": {
+            "PARTY_CODE": "[&1].PartyCode__c",
+            "POLICY_NUMBER": [
+              "[&1].Asset\\.PolicyNumber__c",
+              "[&1].__POLICY_NUMBER_TMP"
+            ],
+            "EXTRA_PROTECT_SECTION_I_OPTED": "[&1].ExtraProtectSection1Opted__c",
+            "EXTRA_PROTECT_SECTION_II_OPTED": "[&1].ExtraProtectSection2Opted__c",
+            "WELLNESS_POINTS": "[&1].WellnessPointsforCURRENTCY__c",
+            "MEMBER_NAME": "[&1].MemberName__c",
+            "HEALTH_ID_CARD_NUMBER": "[&1].HealthIDCardNumber__c",
+            "RELATIONSHIP_WITH_PROPOSER": "[&1].RelationshipwithProposer__c",
+            "GENDER": "[&1].Gender__c",
+            "PED_FLAG_IN_PROPOSAL_FORM": "[&1].PEDFlaginProposalForm__c",
+            "PED": "[&1].PED__c",
+            "WAITING_PERIOD_FOR_PED": "[&1].WaitingPeriodForPED__c",
+            "PED_WAITING_PERIOD_COMPLETED": "[&1].PEDWaitingPeriodCompleted__c",
+            "MEMBER_INCEPTION_DATE": "[&1].MemberInceptionDate__c",
+            "MEMBER_END_DATE": "[&1].MemberEndDate__c",
+            "PARTY_TYPE": "[&1].PartyType__c",
+            "PARTY_IDENTIFICATION_TYPE": "[&1].PartyIdentificationType__c",
+            "DL_UNIQUE_ID": [
+              "[&1].Customer__r\\.DLUniqueId__c",
+              "[&1].__DL_UNIQUE_ID_TMP"
+            ],
+            "PARENT_CODE": "[&1].ParentCode__c",
+            "IS_MEMBER": "[&1].IsMember__c",
+            "MEMBER_DOB": "[&1].MemberDOB__c",
+            "IS_PROPOSER": "[&1].IsProposer__c",
+            "CUMULATIVE_BONUS": "[&1].CumulativeBonus__c",
+            "NOMINEE_PERCENTAGE": "[&1].NomineePercentage__c",
+            "COI_DETAILS": "[&1].COIDetails__c"
+          }
+        }
+      },
+      {
+        "operation": "modify-overwrite-beta",
+        "spec": {
+          "*": {
+            "DLUniqueId__c": "=concat(@(1,__POLICY_NUMBER_TMP),@(1,__DL_UNIQUE_ID_TMP))"
+          }
+        }
+      },
+      {
+        "operation": "remove",
+        "spec": {
+          "*": {
+            "__POLICY_NUMBER_TMP": "",
+            "__DL_UNIQUE_ID_TMP": ""
+          }
+        }
+      },
+      {
+        "operation": "shift",
+        "spec": {
+          "*": {
+            "DLUniqueId__c": "[&1].recordId",
+            "@": "[&1].record"
+          }
+        }
+      },
+      {
+        "operation": "default",
+        "spec": {
+          "*": {
+            "record": {
+              "PartyCode__c": null,
+              "Asset.PolicyNumber__c": null,
+              "ExtraProtectSection1Opted__c": null,
+              "ExtraProtectSection2Opted__c": null,
+              "WellnessPointsforCURRENTCY__c": null,
+              "MemberName__c": null,
+              "HealthIDCardNumber__c": null,
+              "RelationshipwithProposer__c": null,
+              "Gender__c": null,
+              "PEDFlaginProposalForm__c": null,
+              "PED__c": null,
+              "WaitingPeriodForPED__c": null,
+              "PEDWaitingPeriodCompleted__c": null,
+              "MemberInceptionDate__c": null,
+              "MemberEndDate__c": null,
+              "PartyType__c": null,
+              "PartyIdentificationType__c": null,
+              "DLUniqueId__c": null,
+              "Customer__r.DLUniqueId__c": null,
+              "ParentCode__c": null,
+              "IsMember__c": null,
+              "MemberDOB__c": null,
+              "IsProposer__c": null,
+              "CumulativeBonus__c": null,
+              "NomineePercentage__c": null,
+              "COIDetails__c": null,
+              "RelatedAssetId": "02ie1000000erYfAAI",
+              "AgeInMonth__c": null,
+              "AgeInYear__c": null,
+              "HealthId__c": null,
+              "CustomerUniqueId__c": null,
+              "Relationship__c": null
+            },
+            "entity": "policyMember",
+            "status": "READY"
+          }
+        }
+      }
+    ]
+  },
+  "type": "JOLT_TRANSFORM",
+  "updatedAt": {
+    "$date": "2026-04-30T20:31:13.538Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3bc3d036362344ab8d36b"
+  },
+  "name": "sfDecryptPolicyMemberFields",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T20:31:57.359Z"
+  },
+  "params": {
+    "dataSource": "sinkRecords",
+    "fields": [
+      {
+        "source": "MemberDOB__c",
+        "target": "MemberDOB__c"
+      }
+    ]
+  },
+  "type": "DECRYPT",
+  "updatedAt": {
+    "$date": "2026-04-30T20:31:57.359Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3bc7e036362344ab90c4c"
+  },
+  "name": "sfPolicyMemberFieldTransformations",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T20:33:02.708Z"
+  },
+  "params": {
+    "dataSource": "sfDecryptPolicyMemberFields",
+    "config": [
+      {
+        "source": "MemberInceptionDate__c",
+        "target": "MemberInceptionDate__c",
+        "implementation": "safeConvertToYYYYMMDD"
+      },
+      {
+        "source": "MemberEndDate__c",
+        "target": "MemberEndDate__c",
+        "implementation": "safeConvertToYYYYMMDD"
+      },
+      {
+        "source": "IsMember__c",
+        "target": "IsMember__c",
+        "implementation": "safeConvertToBoolean"
+      },
+      {
+        "source": "IsProposer__c",
+        "target": "IsProposer__c",
+        "implementation": "safeConvertToBoolean"
+      },
+      {
+        "source": "CumulativeBonus__c",
+        "target": "CumulativeBonus__c",
+        "implementation": "safeConvertToDecimal"
+      },
+      {
+        "source": "NomineePercentage__c",
+        "target": "NomineePercentage__c",
+        "implementation": "safeConvertToLong"
+      }
+    ]
+  },
+  "type": "FIELD_TRANSFORM",
+  "updatedAt": {
+    "$date": "2026-04-30T20:33:02.708Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3bc91036362344ab91a7f"
+  },
+  "name": "generateSFPolicyMemberCSV",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T20:33:21.754Z"
+  },
+  "params": {
+    "dataSource": "sfPolicyMemberFieldTransformations",
+    "columns": null,
+    "lineEnding": "\r\n",
+    "writeToFile": false
+  },
+  "type": "JSON_TO_CSV",
+  "updatedAt": {
+    "$date": "2026-04-30T20:33:21.754Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3bcac036362344ab92f7d"
+  },
+  "name": "salesforceUploadPolicyMembers",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T20:33:48.305Z"
+  },
+  "params": {
+    "request": {
+      "endpoint": {
+        "basePath": "salesforce.basePath",
+        "url": "/services/data/v64.0/jobs/ingest/${BATCH_JOB_ID}/batches",
+        "method": "PUT"
+      },
+      "headers": {
+        "content-type": "text/csv; charset=UTF-8",
+        "authorization": "Bearer ${TOKEN}"
+      },
+      "rawBody": "${CSV_DATA}",
+      "variables": [
+        {
+          "name": "BATCH_JOB_ID",
+          "type": "context",
+          "value": "salesforceBatchId.referenceId"
+        },
+        {
+          "name": "TOKEN",
+          "type": "context",
+          "value": "salesForceAccessToken.accessToken"
+        },
+        {
+          "name": "CSV_DATA",
+          "type": "context",
+          "value": "generateSFPolicyMemberCSV"
+        }
+      ]
+    },
+    "response": null
+  },
+  "type": "API",
+  "updatedAt": {
+    "$date": "2026-04-30T20:33:48.305Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3bdd5036362344aba1ada"
+  },
+  "name": "transformSFProposalUpdates",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T20:38:45.145Z"
+  },
+  "params": {
+    "updateDataFlow": true,
+    "config": [
+      {
+        "operation": "shift",
+        "spec": {
+          "read": {
+            "data": {
+              "*": {
+                "*": "[&1].@(4,read.columns[&].name)"
+              }
+            }
+          }
+        }
+      },
+      {
+        "operation": "shift",
+        "spec": {
+          "*": {
+            "PROPOSAL_NUMBER": [
+              "[&1].record.proposalNo",
+              "[&1].recordId"
+            ],
+            "POLICY_NUMBER": "[&1].record.policyNo",
+            "BRANCH_OFFICE_CODE": "[&1].record.branchOfficeCode",
+            "STATUS": "[&1].record.status",
+            "CMU_STATUS": "[&1].record.CMUStatus",
+            "TVC_STATUS": "[&1].record.TVCStatus",
+            "REFUND_STATUS": "[&1].record.refundStatus",
+            "POLICY_NAME": "[&1].record.policyName",
+            "INSURANCE_TYPE": "[&1].record.issuanceType",
+            "PAYMENT_MODE": "[&1].record.paymentMode",
+            "TOTAL_PREMIUM": "[&1].record.totalPremium",
+            "PREMIUM_PAID_TILL_DATE": "[&1].record.premiumPaidTillDate",
+            "BALANCE_PREMIUM": "[&1].record.balancePremium",
+            "POLICY_START_DATE": "[&1].record.policyStartDate",
+            "POLICY_END_DATE": "[&1].record.policyEndDate",
+            "POLICY_TENURE": "[&1].record.policyTenure",
+            "INSTALLMENT_FREQUENCY": "[&1].record.installmentFrequency",
+            "TOTAL_INSTALLMENT_COUNT": "[&1].record.totalInstallmentCount",
+            "COUNT_OF_INSTALLMENT_PAID": "[&1].record.countOfInstallmentPaid",
+            "COUNT_OF_INSTALLMENT_DUE": "[&1].record.countOfInstallmentDue",
+            "NEXT_INSTALLMENT_DUE_DATE": "[&1].record.nexInstallmentDueDate",
+            "POLICY_OFFICE_NAME": "[&1].record.policyOfficeName",
+            "CUSTOMER_PARTY_CODE": "[&1].record.customerPartyCode"
+          }
+        }
+      },
+      {
+        "operation": "default",
+        "spec": {
+          "*": {
+            "record": {
+              "proposalNo": null,
+              "policyNo": null,
+              "branchOfficeCode": null,
+              "status": null,
+              "CMUStatus": null,
+              "TVCStatus": null,
+              "refundStatus": null,
+              "policyName": null,
+              "issuanceType": null,
+              "paymentMode": null,
+              "totalPremium": null,
+              "premiumPaidTillDate": null,
+              "balancePremium": null,
+              "policyStartDate": null,
+              "policyEndDate": null,
+              "policyTenure": null,
+              "installmentFrequency": null,
+              "totalInstallmentCount": null,
+              "countOfInstallmentPaid": null,
+              "countOfInstallmentDue": null,
+              "nexInstallmentDueDate": null,
+              "policyOfficeName": null,
+              "customerPartyCode": null
+            },
+            "entity": "proposalUpdate",
+            "status": "READY"
+          }
+        }
+      }
+    ]
+  },
+  "type": "JOLT_TRANSFORM",
+  "updatedAt": {
+    "$date": "2026-04-30T20:38:45.145Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3be1d036362344aba543b"
+  },
+  "name": "generateSFProposalUpdateCSV",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T20:39:57.124Z"
+  },
+  "params": {
+    "dataSource": "sfProposalUpdateFieldTransformations",
+    "columns": null,
+    "lineEnding": "\r\n",
+    "writeToFile": false
+  },
+  "type": "JSON_TO_CSV",
+  "updatedAt": {
+    "$date": "2026-04-30T20:39:57.124Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3be40036362344aba7d9c"
+  },
+  "name": "salesforceUploadProposalUpdates",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T20:40:32.613Z"
+  },
+  "params": {
+    "request": {
+      "endpoint": {
+        "basePath": "salesforce.basePath",
+        "url": "/services/data/v64.0/jobs/ingest/${BATCH_JOB_ID}/batches",
+        "method": "PUT"
+      },
+      "headers": {
+        "content-type": "text/csv; charset=UTF-8",
+        "authorization": "Bearer ${TOKEN}"
+      },
+      "rawBody": "${CSV_DATA}",
+      "variables": [
+        {
+          "name": "BATCH_JOB_ID",
+          "type": "context",
+          "value": "salesforceBatchId.referenceId"
+        },
+        {
+          "name": "TOKEN",
+          "type": "context",
+          "value": "salesForceAccessToken.accessToken"
+        },
+        {
+          "name": "CSV_DATA",
+          "type": "context",
+          "value": "generateSFProposalUpdateCSV"
+        }
+      ]
+    },
+    "response": null
+  },
+  "type": "BANCS_API",
+  "updatedAt": {
+    "$date": "2026-04-30T20:40:32.613Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3bede036362344abb0a20"
+  },
+  "name": "sfProposalUpdateSuccessRecordsJson",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T20:43:10.671Z"
+  },
+  "params": {
+    "source": "salesforceSuccessEntries.response",
+    "columns": {
+      "proposalNo": "recordId"
+    }
+  },
+  "type": "CSV_TO_JSON",
+  "updatedAt": {
+    "$date": "2026-04-30T20:43:10.671Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3bef2036362344abb191f"
+  },
+  "name": "sfProposalUpdateFailedRecordsJson",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T20:43:30.860Z"
+  },
+  "params": {
+    "source": "salesforceFailedEntries.response",
+    "columns": {
+      "proposalNo": "recordId",
+      "sf__Error": "errorMessage"
+    }
+  },
+  "type": "CSV_TO_JSON",
+  "updatedAt": {
+    "$date": "2026-04-30T20:43:30.860Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3bf35036362344abb4b32"
+  },
+  "name": "sfProposalUpdateSuccessFailureCombinedRecords",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T20:44:37.219Z"
+  },
+  "params": {
+    "config": [
+      {
+        "operation": "shift",
+        "spec": {
+          "salesforceJobInfo": {
+            "jobStatus": {
+              "JobComplete": {
+                "#COMPLETED": "jobStatus"
+              },
+              "Failed": {
+                "#FAILED": "jobStatus"
+              }
+            },
+            "successRecordCount": "successRecordCount",
+            "failedRecordCount": "failedRecordCount",
+            "errorMessage": "errorMessage"
+          },
+          "sfProposalUpdateSuccessRecordsJson": {
+            "*": {
+              "recordId": "successRecords[]"
+            }
+          },
+          "sfProposalUpdateFailedRecordsJson": {
+            "*": {
+              "errorMessage": "failedRecords.@(1,recordId)"
+            }
+          }
+        }
+      },
+      {
+        "operation": "cardinality",
+        "spec": {
+          "failedRecords": {
+            "*": "ONE"
+          }
+        }
+      }
+    ]
+  },
+  "type": "JOLT_TRANSFORM",
+  "updatedAt": {
+    "$date": "2026-04-30T20:44:37.219Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3c0b5036362344abc876d"
+  },
+  "name": "transformSFSalesManagers",
+  "active": true,
+  "params": {
+    "updateDataFlow": true,
+    "config": [
+      {
+        "operation": "shift",
+        "spec": {
+          "read": {
+            "data": {
+              "*": {
+                "*": "[&1].@(4,read.columns[&].name)"
+              }
+            }
+          }
+        }
+      },
+      {
+        "operation": "shift",
+        "spec": {
+          "*": {
+            "FULLFILLER_CODE": [
+              "[&1].record.SMCode__c",
+              "[&1].recordId"
+            ],
+            "FULLFILLER_FIRST_NAME": [
+              "[&1].record.FirstName",
+              "[&1].record.CFirstName__pc"
+            ],
+            "FULLFILLER_LAST_NAME": [
+              "[&1].record.LastName",
+              "[&1].record.CLastName__pc"
+            ],
+            "CITY": "[&1].record.PersonMailingCity",
+            "COUNTRY": "[&1].record.PersonMailingCountry",
+            "STATE": "[&1].record.PersonMailingState",
+            "STREET": "[&1].record.PersonMailingStreet",
+            "PIN_CODE": "[&1].record.PersonMailingPostalCode",
+            "DESIGNATION": "[&1].record.Designation__pc",
+            "DOB": "[&1].record.PersonBirthdate",
+            "EFFECTIVE_FROM": "[&1].record.EffectiveFrom__pc",
+            "EFFECTIVE_TO": "[&1].record.EffectiveTo__pc",
+            "GENDER": "[&1].record.PersonGenderIdentity",
+            "MOBILE_NO": "[&1].record.PersonMobilePhone",
+            "EMAIL_ID": "[&1].record.PersonEmail",
+            "MARITAL_STATUS": "[&1].record.MaritalStatus__pc",
+            "BRANCH": "[&1].record.Branch__r\\.OfficeCode__c"
+          }
+        }
+      },
+      {
+        "operation": "default",
+        "spec": {
+          "*": {
+            "record": {
+              "SMCode__c": null,
+              "FirstName": null,
+              "CFirstName__pc": null,
+              "LastName": null,
+              "CLastName__pc": null,
+              "PersonMailingCity": null,
+              "PersonMailingCountry": null,
+              "PersonMailingState": null,
+              "PersonMailingStreet": null,
+              "PersonMailingPostalCode": null,
+              "Designation__pc": null,
+              "PersonBirthdate": null,
+              "EffectiveFrom__pc": null,
+              "EffectiveTo__pc": null,
+              "PersonGenderIdentity": null,
+              "PersonMobilePhone": null,
+              "PersonEmail": null,
+              "MaritalStatus__pc": null,
+              "Branch__r.OfficeCode__c": null,
+              "RecordType.Name": "Sales Manager"
+            },
+            "entity": "salesManager",
+            "status": "READY"
+          }
+        }
+      }
+    ]
+  },
+  "type": "JOLT_TRANSFORM",
+  "updatedAt": {
+    "$date": "2026-05-04T12:39:53.869Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3c0d5036362344abca2cd"
+  },
+  "name": "sfDecryptSalesManagerFields",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T20:51:33.970Z"
+  },
+  "params": {
+    "updateDataFlow": true,
+    "dataSource": "sinkRecords",
+    "fields": [
+      {
+        "source": "PersonBirthdate",
+        "target": "PersonBirthdate"
+      },
+      {
+        "source": "PersonMobilePhone",
+        "target": "PersonMobilePhone"
+      },
+      {
+        "source": "PersonEmail",
+        "target": "PersonEmail"
+      }
+    ]
+  },
+  "type": "DECRYPT",
+  "updatedAt": {
+    "$date": "2026-04-30T20:51:33.970Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3c0e9036362344abcb388"
+  },
+  "name": "sfSalesManagerFieldTransformations",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T20:51:53.342Z"
+  },
+  "params": {
+    "dataSource": "sfDecryptSalesManagerFields",
+    "config": [
+      {
+        "source": "PersonBirthdate",
+        "target": "PersonBirthdate",
+        "implementation": "safeConvertDateDDMMMYYToYYYYMMDD"
+      }
+    ]
+  },
+  "type": "FIELD_TRANSFORM",
+  "updatedAt": {
+    "$date": "2026-04-30T20:51:53.342Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3c103036362344abcca92"
+  },
+  "name": "generateSFSalesManagerCSV",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T20:52:19.517Z"
+  },
+  "params": {
+    "dataSource": "sfSalesManagerFieldTransformations",
+    "columns": null,
+    "lineEnding": "\r\n",
+    "writeToFile": false
+  },
+  "type": "JSON_TO_CSV",
+  "updatedAt": {
+    "$date": "2026-04-30T20:52:19.517Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3c130036362344abcec4f"
+  },
+  "name": "salesforceUploadSalesManagers",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T20:53:04.068Z"
+  },
+  "params": {
+    "request": {
+      "endpoint": {
+        "basePath": "salesforce.basePath",
+        "url": "/services/data/v64.0/jobs/ingest/${BATCH_JOB_ID}/batches",
+        "method": "PUT"
+      },
+      "headers": {
+        "content-type": "text/csv; charset=UTF-8",
+        "authorization": "Bearer ${TOKEN}"
+      },
+      "rawBody": "${CSV_DATA}",
+      "variables": [
+        {
+          "name": "BATCH_JOB_ID",
+          "type": "context",
+          "value": "salesforceBatchId.referenceId"
+        },
+        {
+          "name": "TOKEN",
+          "type": "context",
+          "value": "salesForceAccessToken.accessToken"
+        },
+        {
+          "name": "CSV_DATA",
+          "type": "context",
+          "value": "generateSFSalesManagerCSV"
+        }
+      ]
+    },
+    "response": null
+  },
+  "type": "API",
+  "updatedAt": {
+    "$date": "2026-04-30T20:53:04.068Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3c18a036362344abd367c"
+  },
+  "name": "sfSalesManagerSuccessRecordsJson",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T20:54:34.359Z"
+  },
+  "params": {
+    "source": "salesforceSuccessEntries.response",
+    "columns": {
+      "SMCode__c": "recordId"
+    }
+  },
+  "type": "CSV_TO_JSON",
+  "updatedAt": {
+    "$date": "2026-04-30T20:54:34.359Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3c19d036362344abd45bf"
+  },
+  "name": "sfSalesManagerFailedRecordsJson",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T20:54:53.704Z"
+  },
+  "params": {
+    "source": "salesforceFailedEntries.response",
+    "columns": {
+      "SMCode__c": "recordId",
+      "sf__Error": "errorMessage"
+    }
+  },
+  "type": "CSV_TO_JSON",
+  "updatedAt": {
+    "$date": "2026-04-30T20:54:53.704Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f3c1d3036362344abd6f7e"
+  },
+  "name": "sfSalesManagerSuccessFailureCombinedRecords",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T20:55:48.005Z"
+  },
+  "params": {
+    "config": [
+      {
+        "operation": "shift",
+        "spec": {
+          "salesforceJobInfo": {
+            "jobStatus": {
+              "JobComplete": {
+                "#COMPLETED": "jobStatus"
+              },
+              "Failed": {
+                "#FAILED": "jobStatus"
+              }
+            },
+            "successRecordCount": "successRecordCount",
+            "failedRecordCount": "failedRecordCount",
+            "errorMessage": "errorMessage"
+          },
+          "sfSalesManagerSuccessRecordsJson": {
+            "*": {
+              "recordId": "successRecords[]"
+            }
+          },
+          "sfSalesManagerFailedRecordsJson": {
+            "*": {
+              "errorMessage": "failedRecords.@(1,recordId)"
+            }
+          }
+        }
+      },
+      {
+        "operation": "cardinality",
+        "spec": {
+          "failedRecords": {
+            "*": "ONE"
+          }
+        }
+      }
+    ]
+  },
+  "type": "JOLT_TRANSFORM",
+  "updatedAt": {
+    "$date": "2026-04-30T20:55:48.005Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f9ecfb3b6a3525c50211e0"
+  },
+  "name": "sfPolicyMemberFailedRecordsJson",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-28T11:24:44.236Z"
+  },
+  "params": {
+    "source": "salesforceFailedEntries.response",
+    "columns": {
+      "DLUniqueId__c": "recordId",
+      "sf__Error": "errorMessage"
+    }
+  },
+  "type": "CSV_TO_JSON",
+  "updatedAt": {
+    "$date": "2026-04-28T11:24:44.236Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f9ed683b6a3525c50211e3"
+  },
+  "name": "sfPolicyMemberSuccessFailureCombinedRecords",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-28T11:24:54.031Z"
+  },
+  "params": {
+    "config": [
+      {
+        "operation": "shift",
+        "spec": {
+          "salesforceJobInfo": {
+            "jobStatus": {
+              "JobComplete": {
+                "#COMPLETED": "jobStatus"
+              },
+              "Failed": {
+                "#FAILED": "jobStatus"
+              }
+            },
+            "successRecordCount": "successRecordCount",
+            "failedRecordCount": "failedRecordCount",
+            "errorMessage": "errorMessage"
+          },
+          "sfPolicyMemberSuccessRecordsJson": {
+            "*": {
+              "recordId": "successRecords[]"
+            }
+          },
+          "sfPolicyMemberFailedRecordsJson": {
+            "*": {
+              "errorMessage": "failedRecords.@(1,recordId)"
+            }
+          }
+        }
+      },
+      {
+        "operation": "cardinality",
+        "spec": {
+          "failedRecords": {
+            "*": "ONE"
+          }
+        }
+      }
+    ]
+  },
+  "type": "JOLT_TRANSFORM",
+  "updatedAt": {
+    "$date": "2026-04-28T11:24:54.031Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69f9f2373b6a3525c502121f"
+  },
+  "name": "sfPolicyMemberSuccessRecordsJson",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-28T11:24:39.137Z"
+  },
+  "params": {
+    "source": "salesforceSuccessEntries.response",
+    "columns": {
+      "DLUniqueId__c": "recordId"
+    }
+  },
+  "type": "CSV_TO_JSON",
+  "updatedAt": {
+    "$date": "2026-04-28T11:24:39.137Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6a0f05af764e42ca6e7a549b"
+  },
+  "name": "zohoUploadRenewalQuote",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-05-21T13:16:31.263Z"
+  },
+  "params": {
+    "request": {
+      "endpoint": {
+        "basePath": "zoho.apiDomain",
+        "url": "/crm/v2/Renewal_Policy/upsert",
+        "method": "POST"
+      },
+      "headers": {
+        "content-type": "application/json",
+        "Authorization": "Zoho-oauthtoken ${TOKEN}"
+      },
+      "variables": [
+        {
+          "name": "TOKEN",
+          "type": "context",
+          "value": "zohoAccessToken.accessToken"
+        },
+        {
+          "name": "DATA",
+          "type": "context",
+          "value": "flattenRenewalQuoteZoho.data"
+        },
+        {
+          "name": "TRIGGER",
+          "type": "context",
+          "value": "flattenRenewalQuoteZoho.trigger"
+        },
+        {
+          "name": "DUP_CHK",
+          "type": "context",
+          "value": "flattenRenewalQuoteZoho.duplicate_check_fields"
+        }
+      ],
+      "body": [
+        {
+          "name": "data",
+          "type": "dynamic",
+          "value": "${DATA}"
+        },
+        {
+          "name": "trigger",
+          "type": "dynamic",
+          "value": "${TRIGGER}"
+        },
+        {
+          "name": "duplicate_check_fields",
+          "type": "dynamic",
+          "value": "${DUP_CHK}"
+        }
+      ]
+    },
+    "response": null
+  },
+  "type": "API",
+  "updatedAt": {
+    "$date": "2026-05-21T13:16:31.263Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6a15bde4fbad2d5c967a98d9"
+  },
+  "name": "updateLeadsBancs",
+  "active": true,
+  "type": "API",
+  "params": {
+    "dataSource": "sfProposalUpdateFieldTransformations",
+    "request": {
+      "endpoint": {
+        "basePath": "salesforce.basePath",
+        "url": "/services/apexrest/Integration/v1/UpdateLeadsBancs",
+        "method": "POST"
+      },
+      "headers": {
+        "content-type": "application/json",
+        "authorization": "Bearer ${TOKEN}"
+      },
+      "variables": [
+        {
+          "name": "TOKEN",
+          "type": "context",
+          "value": "salesForceAccessToken.accessToken"
+        }
+      ]
+    }
+  },
+  "updatedAt": {
+    "$date": "2026-05-26T21:00:00.000Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6a1ea57dcf3c083ed30196dd"
+  },
+  "name": "transformLeadGL",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-06-02T09:42:20.598Z"
+  },
+  "params": {
+    "updateDataFlow": true,
+    "config": [
+      {
+        "operation": "shift",
+        "spec": {
+          "read": {
+            "data": {
+              "*": {
+                "lead_uuid": [
+                  "[&1].record.lead_uuid",
+                  "[&1].recordId"
+                ],
+                "mobile_number_e": "[&1].record.mobile_number",
+                "credit_card_count": "[&1].record.credit_card_count",
+                "total_credit_accounts": "[&1].record.total_credit_accounts",
+                "total_credit_card_limits": "[&1].record.total_credit_card_limits",
+                "total_late_payment_days": "[&1].record.total_late_payment_days",
+                "full_name": "[&1].record.full_name",
+                "gender": "[&1].record.gender",
+                "age": "[&1].record.age",
+                "latest_pincode": "[&1].record.latest_pincode",
+                "score_v3": "[&1].record.score_v3",
+                "affluence": "[&1].record.affluence",
+                "state": "[&1].record.state",
+                "languages": "[&1].record.languages"
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "type": "JOLT_TRANSFORM",
+  "updatedAt": {
+    "$date": "2026-06-02T09:42:20.598Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6a1fbc94cf3c083ed3ef28dc"
+  },
+  "name": "pushToGreylabs",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-06-03T05:33:08.407Z"
+  },
+  "params": {
+    "request": {
+      "endpoint": {
+        "basePath": "greylabs.basePath",
+        "url": "/voice-ai/api/v1/data/webhook/lead/connector.3f487315-86a8-4efd-9909-46f8f69fce4f",
+        "method": "POST"
+      },
+      "headers": {
+        "Content-Type": "application/json",
+        "X-API-Key": "${GREYLABS_APIKEY}",
+        "X-API-Secret": "${GREYLABS_APISECRET}"
+      },
+      "variables": [
+        {
+          "name": "GREYLABS_APIKEY",
+          "type": "env",
+          "value": "greylabs.xApiKey"
+        },
+        {
+          "name": "GREYLABS_APISECRET",
+          "type": "env",
+          "value": "greylabs.xApiSecret"
+        },
+        {
+          "name": "SINK_RECORDS",
+          "type": "context",
+          "value": "sinkRecords"
+        }
+      ],
+      "body": [
+        {
+          "name": "data",
+          "type": "dynamic",
+          "value": "${SINK_RECORDS}"
+        }
+      ]
+    },
+    "response": null
+  },
+  "type": "API",
+  "updatedAt": {
+    "$date": "2026-06-03T07:34:15.171Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6a290cbccf3c083ed395aabb"
+  },
+  "name": "generateSFEmiCSV",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-06-10T07:05:32.079Z"
+  },
+  "params": {
+    "dataSource": "sfEmiFieldTransformations",
+    "columns": null,
+    "lineEnding": "\r\n",
+    "writeToFile": false
+  },
+  "type": "JSON_TO_CSV",
+  "updatedAt": {
+    "$date": "2026-06-10T07:05:32.079Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6a290cfdcf3c083ed3963255"
+  },
+  "name": "salesforceUploadEmi",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-06-10T07:06:37.532Z"
+  },
+  "params": {
+    "request": {
+      "endpoint": {
+        "basePath": "salesforce.basePath",
+        "url": "/services/data/v64.0/jobs/ingest/${BATCH_JOB_ID}/batches",
+        "method": "PUT"
+      },
+      "headers": {
+        "content-type": "text/csv; charset=UTF-8",
+        "authorization": "Bearer ${TOKEN}"
+      },
+      "rawBody": "${CSV_DATA}",
+      "variables": [
+        {
+          "name": "BATCH_JOB_ID",
+          "type": "context",
+          "value": "salesforceBatchId.referenceId"
+        },
+        {
+          "name": "TOKEN",
+          "type": "context",
+          "value": "salesForceAccessToken.accessToken"
+        },
+        {
+          "name": "CSV_DATA",
+          "type": "context",
+          "value": "generateSFEmiCSV"
+        }
+      ]
+    },
+    "response": null
+  },
+  "type": "API",
+  "updatedAt": {
+    "$date": "2026-06-10T07:06:37.532Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6a290d1ccf3c083ed3966f9a"
+  },
+  "name": "sfEmiFailedRecordsJson",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-06-10T07:07:08.749Z"
+  },
+  "params": {
+    "source": "salesforceFailedEntries.response",
+    "columns": {
+      "UniqueEMIId__c": "recordId",
+      "sf__Error": "errorMessage"
+    }
+  },
+  "type": "CSV_TO_JSON",
+  "updatedAt": {
+    "$date": "2026-06-10T07:07:08.749Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6a290d3ccf3c083ed396c087"
+  },
+  "name": "sfEmiFieldTransformations",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-06-10T07:07:40.820Z"
+  },
+  "params": {
+    "dataSource": "sinkRecords",
+    "config": [
+      {
+        "source": "InstallmentNo__c",
+        "target": "InstallmentNo__c",
+        "implementation": "safeConvertToLong"
+      },
+      {
+        "source": "EMIDueDate__c",
+        "target": "EMIDueDate__c",
+        "implementation": "safeConvertDateDDMMMYYToYYYYMMDD"
+      },
+      {
+        "source": "PaymentDate__c",
+        "target": "PaymentDate__c",
+        "implementation": "safeConvertDateDDMMMYYToYYYYMMDD"
+      },
+      {
+        "source": "ReceiptDate__c",
+        "target": "ReceiptDate__c",
+        "implementation": "safeConvertDateDDMMMYYToYYYYMMDD"
+      },
+      {
+        "source": "PaymentDateTime__c",
+        "target": "PaymentDateTime__c",
+        "implementation": "safeConvertToDateTime"
+      },
+      {
+        "source": "EMIPremiumExclGST__c",
+        "target": "EMIPremiumExclGST__c",
+        "implementation": "safeConvertToDecimal"
+      },
+      {
+        "source": "EMIGST__c",
+        "target": "EMIGST__c",
+        "implementation": "safeConvertToDecimal"
+      },
+      {
+        "source": "EMIPremiumInclGST__c",
+        "target": "EMIPremiumInclGST__c",
+        "implementation": "safeConvertToDecimal"
+      },
+      {
+        "source": "PaymentAmount__c",
+        "target": "PaymentAmount__c",
+        "implementation": "safeConvertToDecimal"
+      },
+      {
+        "source": "CreatedDate",
+        "target": "CreatedDate",
+        "implementation": "safeConvertToDateTime"
+      },
+      {
+        "source": "LastModifiedDate",
+        "target": "LastModifiedDate",
+        "implementation": "safeConvertToDateTime"
+      }
+    ]
+  },
+  "type": "FIELD_TRANSFORM",
+  "updatedAt": {
+    "$date": "2026-06-10T07:07:40.820Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6a290d5acf3c083ed396f9ec"
+  },
+  "name": "sfEmiSuccessFailureCombinedRecords",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-06-10T07:08:10.678Z"
+  },
+  "params": {
+    "config": [
+      {
+        "operation": "shift",
+        "spec": {
+          "salesforceJobInfo": {
+            "jobStatus": {
+              "JobComplete": {
+                "#COMPLETED": "jobStatus"
+              },
+              "Failed": {
+                "#FAILED": "jobStatus"
+              }
+            },
+            "successRecordCount": "successRecordCount",
+            "failedRecordCount": "failedRecordCount",
+            "errorMessage": "errorMessage"
+          },
+          "sfEmiSuccessRecordsJson": {
+            "*": {
+              "recordId": "successRecords[]"
+            }
+          },
+          "sfEmiFailedRecordsJson": {
+            "*": {
+              "errorMessage": "failedRecords.@(1,recordId)"
+            }
+          }
+        }
+      },
+      {
+        "operation": "cardinality",
+        "spec": {
+          "failedRecords": {
+            "*": "ONE"
+          }
+        }
+      }
+    ]
+  },
+  "type": "JOLT_TRANSFORM",
+  "updatedAt": {
+    "$date": "2026-06-10T07:08:10.678Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6a290d6dcf3c083ed3972bfc"
+  },
+  "name": "sfEmiSuccessRecordsJson",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-06-10T07:08:29.427Z"
+  },
+  "params": {
+    "source": "salesforceSuccessEntries.response",
+    "columns": {
+      "UniqueEMIId__c": "recordId"
+    }
+  },
+  "type": "CSV_TO_JSON",
+  "updatedAt": {
+    "$date": "2026-06-10T07:08:29.427Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6a2919268a76c3cae17ec296"
+  },
+  "name": "salesforceBancsUpdate",
+  "active": true,
+  "params": {
+    "request": {
+      "endpoint": {
+        "basePath": "salesforce.basePath",
+        "url": "/services/apexrest/Integration/v1/UpdateLeadsBancs",
+        "method": "POST"
+      },
+      "headers": {
+        "authorization": "Bearer ${TOKEN}"
+      },
+      "variables": [
+        {
+          "name": "TOKEN",
+          "type": "context",
+          "value": "salesForceAccessToken.accessToken"
+        },
+        {
+          "name": "REQUEST_BODY",
+          "type": "context",
+          "value": "proposalUpdateArrayToObject"
+        }
+      ],
+      "rawBody": "${REQUEST_BODY}"
+    },
+    "response": {
+      "params": [
+        {
+          "key": "status",
+          "value": "status"
+        },
+        {
+          "key": "message",
+          "value": "message"
+        }
+      ]
+    }
+  },
+  "type": "API"
+},
+{
+  "_id": {
+    "$oid": "6a29193a8a76c3cae17ec298"
+  },
+  "name": "proposalUpdateArrayToObject",
+  "active": true,
+  "params": {
+    "updateDataFlow": true,
+    "config": [
+      {
+        "operation": "shift",
+        "spec": {
+          "*": {
+            "0": {
+              "*": "&"
+            }
+          }
+        }
+      },
+      {
+        "operation": "cardinality",
+        "spec": {
+          "*": "ONE"
+        }
+      }
+    ]
+  },
+  "type": "JOLT_TRANSFORM"
+},
+{
+  "_id": {
+    "$oid": "6a2919598a76c3cae17ec29a"
+  },
+  "name": "sfProposalUpdateFieldTransformations",
+  "active": true,
+  "params": {
+    "dataSource": "sinkRecords",
+    "config": [
+      {
+        "source": "policyStartDate",
+        "target": "policyStartDate",
+        "implementation": "safeConvertToYYYYMMDD"
+      },
+      {
+        "source": "policyEndDate",
+        "target": "policyEndDate",
+        "implementation": "safeConvertToYYYYMMDD"
+      },
+      {
+        "source": "totalPremium",
+        "target": "totalPremium",
+        "implementation": "safeConvertToLong"
+      },
+      {
+        "source": "premiumPaidTillDate",
+        "target": "premiumPaidTillDate",
+        "implementation": "safeConvertToYYYYMMDD"
+      },
+      {
+        "source": "balancePremium",
+        "target": "balancePremium",
+        "implementation": "safeConvertToLong"
+      },
+      {
+        "source": "totalInstallmentCount",
+        "target": "totalInstallmentCount",
+        "implementation": "safeConvertToLong"
+      },
+      {
+        "source": "countOfInstallmentPaid",
+        "target": "countOfInstallmentPaid",
+        "implementation": "safeConvertToLong"
+      },
+      {
+        "source": "countOfInstallmentDue",
+        "target": "countOfInstallmentDue",
+        "implementation": "safeConvertToYYYYMMDD"
+      },
+      {
+        "source": "nexInstallmentDueDate",
+        "target": "nexInstallmentDueDate",
+        "implementation": "safeConvertToYYYYMMDD"
+      }
+    ]
+  },
+  "type": "FIELD_TRANSFORM"
+},
+{
+  "_id": {
+    "$oid": "6a2a72d5211f4746e68d9eb6"
+  },
+  "name": "transformSFEmi",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-06-10T07:08:57.505Z"
+  },
+  "params": {
+    "updateDataFlow": true,
+    "config": [
+      {
+        "operation": "shift",
+        "spec": {
+          "read": {
+            "data": {
+              "*": {
+                "*": "[&1].@(4,read.columns[&].name)"
+              }
+            }
+          }
+        }
+      },
+      {
+        "operation": "shift",
+        "spec": {
+          "*": {
+            "POLICY_NUMBER": "[&1].record.PolicyNumber__r\\.PolicyNumber__c",
+            "CUSTOMER_CODE": "[&1].record.Customer__r\\.DLUniqueId__c",
+            "INSTALLMENT_NUMBER": "[&1].record.InstallmentNo__c",
+            "EMI_DUE_DATE": "[&1].record.EMIDueDate__c",
+            "EMI_PREMIUM_EXCL_GST": "[&1].record.EMIPremiumExclGST__c",
+            "EMI_GST_AMOUNT": "[&1].record.EMIGST__c",
+            "EMI_PREMIUM_INCL_GST": "[&1].record.EMIPremiumInclGST__c",
+            "EMI_PAYMENT_STATUS": "[&1].record.EMIPaymentStatus__c",
+            "PAYMENT_DATE_TIME": "[&1].record.PaymentDateTime__c",
+            "UNIQUE_EMI_ID": [
+              "[&1].record.UniqueEMIId__c",
+              "[&1].recordId"
+            ],
+            "RECEIPT_NUMBER": "[&1].record.ReceiptNumber__c",
+            "ENDORSEMENT_NUMBER": "[&1].record.EndorsementNumber__c",
+            "ENDORSEMENT_DATE": "[&1].record.EndorsementDate__c",
+            "EMI_SOURCE": "[&1].record.EMISource__c",
+            "PAYMENT_DATE": "[&1].record.PaymentDate__c",
+            "PAYMENT_SOURCE": "[&1].record.PaymentSource__c",
+            "ORDER_ID": "[&1].record.OrderId__c",
+            "CONSENT_ORDER_ID": "[&1].record.ConsentOrderId__c",
+            "RECEIPT_DATE": "[&1].record.ReceiptDate__c",
+            "PAYMENT_AMOUNT": "[&1].record.PaymentAmount__c"
+          }
+        }
+      },
+      {
+        "operation": "default",
+        "spec": {
+          "*": {
+            "record": {
+              "PolicyNumber__r.PolicyNumber__c": null,
+              "Customer__r.DLUniqueId__c": null,
+              "InstallmentNo__c": null,
+              "EMIDueDate__c": null,
+              "EMIPremiumExclGST__c": null,
+              "EMIGST__c": null,
+              "EMIPremiumInclGST__c": null,
+              "EMIPaymentStatus__c": null,
+              "PaymentDateTime__c": null,
+              "UniqueEMIId__c": null,
+              "ReceiptNumber__c": null,
+              "EndorsementNumber__c": null,
+              "EndorsementDate__c": null,
+              "EMISource__c": null,
+              "PaymentDate__c": null,
+              "PaymentSource__c": null,
+              "OrderId__c": null,
+              "ConsentOrderId__c": null,
+              "ReceiptDate__c": null,
+              "PaymentAmount__c": null,
+              "RecordType.Name": "EMI Tele Calling"
+            },
+            "entity": "emi",
+            "status": "READY"
+          }
+        }
+      }
+    ]
+  },
+  "type": "JOLT_TRANSFORM",
+  "updatedAt": {
+    "$date": "2026-06-10T07:08:57.505Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6a2a8b34211f4746e68d9ec2"
+  },
+  "name": "transformSFPolicies",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-30T20:18:02.051Z"
+  },
+  "params": {
+    "updateDataFlow": true,
+    "config": [
+      {
+        "operation": "shift",
+        "spec": {
+          "read": {
+            "data": {
+              "*": {
+                "*": "[&1].@(4,read.columns[&].name)"
+              }
+            }
+          }
+        }
+      },
+      {
+        "operation": "shift",
+        "spec": {
+          "*": {
+            "POLICY_NUMBER": [
+              "[&1].record.Name",
+              "[&1].record.PolicyNumber__c",
+              "[&1].recordId"
+            ],
+            "PRODUCT_CODE": "[&1].record.ProductCode__c",
+            "PRODUCT_NAME": "[&1].record.ProductName__c",
+            "UIN_NUMBER": "[&1].record.UINNumber__c",
+            "PROPOSAL_NO": "[&1].record.ProposalNo__c",
+            "PROPOSAL_CREATION_DATE": "[&1].record.ProposalCreationDate__c",
+            "POLICY_CONVERTED_DATE": "[&1].record.PolicyConvertedDate__c",
+            "POLICY_INCEPTION_DATE": "[&1].record.PolicyInceptionDate__c",
+            "POLICY_EXPIRY_DATE": "[&1].record.PolicyExpiryDate__c",
+            "POLICY_STATUS": "[&1].record.PolicyStatus__c",
+            "POLICY_PERIOD": "[&1].record.PolicyPeriod__c",
+            "SUM_INSURED": "[&1].record.SumInsured__c",
+            "GST_AMOUNT": "[&1].record.GSTAmt__c",
+            "TOTAL_PREMIUM": "[&1].record.TotalPremium__c",
+            "NO_OF_MEMBERS": "[&1].record.NoOfMembers__c",
+            "ONLINE_DISCOUNT_PERC": "[&1].record.OnlineDiscount__c",
+            "NO_CLAIM_DISCOUNT_PERC": "[&1].record.NoClaimDiscount__c",
+            "WELLNESS_DISCOUNT_PERC": "[&1].record.WellnessDiscount__c",
+            "ENACH_MANDATE_OPTED": "[&1].record.EnachMandateOpted__c",
+            "MANDATE_ID": "[&1].record.MandateId__c",
+            "CATEGORY_RANKING": "[&1].record.CategoryRanking__c",
+            "PURCHASE_CHANNEL": "[&1].record.PurchaseChannel__c",
+            "PROPOSER_NAME": "[&1].record.ProposerName__c",
+            "PROPOSAL_FORM_NUMBER": "[&1].record.ProposalFormNumber__c",
+            "PAYMENT_TYPE": "[&1].record.PaymentType__c",
+            "INSTALLMENT_METHOD": "[&1].record.InstallmentMethod__c",
+            "MODE_OF_BUSINESS": "[&1].record.ModeOfBusiness__c",
+            "PARTY_CODE": [
+              "[&1].record.PartyCode__c",
+              "[&1].record.Account\\.DLUniqueId__c"
+            ],
+            "CO_PAY_OPTED": "[&1].record.CopayOpted__c",
+            "INTERMEDIARY_CODE": "[&1].record.Agent__r\\.AgentCode__c",
+            "INTERMEDIARY_NAME": "[&1].record.AgentName__c",
+            "HICR": "[&1].record.HICR__c",
+            "PREVIOUS_POLICY_NUMBER": "[&1].record.PreviousPolicyNumber__c",
+            "PREVIOUS_PRODUCT_NAME": "[&1].record.PreviousProductName__c",
+            "CUMULATIVE_BONUS": "[&1].record.CumulativeBonus__c",
+            "GRACE_PERIOD_END_DATE": "[&1].record.GracePeriodEndDate__c",
+            "BRANCH_OFFICE_CODE": "[&1].record.Branch__r\\.OfficeCode__c",
+            "SALES_MANAGER_CODE": "[&1].record.SalesManager__r\\.SMCode__c",
+            "SALES_MANAGER_NAME": "[&1].record.SalesManagerName__c",
+            "SALES_MANAGER_PHONE": "[&1].record.SalesManagerPhone__c",
+            "SPLIT_RENEWAL_APPLICABLE": "[&1].record.SplitRenewalApplicable__c",
+            "CANCELLATION_REASON": "[&1].record.CancellationReason__c",
+            "POLICY_CANCELLATION_DATE": "[&1].record.PolicyCancellationDate__c",
+            "POLICY_TYPE": "[&1].record.PolicyType__c",
+            "LAST_PAYMENT_DATE": "[&1].record.LastPaymentDate__c",
+            "LAST_PAYMENT_AMOUNT": "[&1].record.LastPaymentAmount__c",
+            "PREMIUM_PAID_TILL_DATE": "[&1].record.PremiumPaidTillDate__c",
+            "POLICY_TENURE": "[&1].record.PolicyTenure__c",
+            "TOTAL_EMI_COUNT": "[&1].record.TotalEMICount__c",
+            "CLAIM_SINCE_INCEPTION": "[&1].record.ClaimSinceInception__c",
+            "INTERMEDIARY_TYPE": "[&1].record.IntermediaryType__c",
+            "BALANCE_PREMIUM": "[&1].record.BalancePremium__c",
+            "COUNT_OF_EMI_PAID": "[&1].record.CountOfEMIPaid__c",
+            "COUNT_OF_EMI_DUE": "[&1].record.CountOfEMIDue__c",
+            "VERTICAL": "[&1].record.Vertical__c",
+            "POLICY_CATEGORY": "[&1].record.PolicyCategory__c",
+            "PED_FLAG": "[&1].record.PEDFlag__c",
+            "LAST_CLAIM_INTIMATION_DATE": "[&1].record.LastClaimInitiationDate__c",
+            "CANCELLATION_ENDORSEMENT_TYPE": "[&1].record.CancellationEndorsementType__c",
+            "POLICY_RENEWAL_COUNT": "[&1].record.PolicyRenewalCount__c",
+            "VINTAGE": "[&1].record.Vintage__c",
+            "PRODUCT_TYPE": "[&1].record.ProductType__c"
+          }
+        }
+      },
+      {
+        "operation": "default",
+        "spec": {
+          "*": {
+            "record": {
+              "Name": null,
+              "PolicyNumber__c": null,
+              "ProductCode__c": null,
+              "ProductName__c": null,
+              "UINNumber__c": null,
+              "ProposalNo__c": null,
+              "ProposalCreationDate__c": null,
+              "PolicyConvertedDate__c": null,
+              "PolicyInceptionDate__c": null,
+              "PolicyExpiryDate__c": null,
+              "PolicyStatus__c": null,
+              "PolicyPeriod__c": null,
+              "SumInsured__c": null,
+              "GSTAmt__c": null,
+              "TotalPremium__c": null,
+              "NoOfMembers__c": null,
+              "OnlineDiscount__c": null,
+              "NoClaimDiscount__c": null,
+              "WellnessDiscount__c": null,
+              "EnachMandateOpted__c": null,
+              "MandateId__c": null,
+              "CategoryRanking__c": null,
+              "PurchaseChannel__c": null,
+              "ProposerName__c": null,
+              "ProposalFormNumber__c": null,
+              "PaymentType__c": null,
+              "InstallmentMethod__c": null,
+              "ModeOfBusiness__c": null,
+              "PartyCode__c": null,
+              "Account.DLUniqueId__c": null,
+              "CopayOpted__c": null,
+              "Agent__r.AgentCode__c": null,
+              "AgentName__c": null,
+              "HICR__c": null,
+              "PreviousPolicyNumber__c": null,
+              "PreviousProductName__c": null,
+              "CumulativeBonus__c": null,
+              "GracePeriodEndDate__c": null,
+              "Branch__r.OfficeCode__c": null,
+              "SalesManager__r.SMCode__c": null,
+              "SalesManagerName__c": null,
+              "SalesManagerPhone__c": null,
+              "SplitRenewalApplicable__c": null,
+              "CancellationReason__c": null,
+              "PolicyCancellationDate__c": null,
+              "PolicyType__c": null,
+              "LastPaymentDate__c": null,
+              "LastPaymentAmount__c": null,
+              "PremiumPaidTillDate__c": null,
+              "PolicyTenure__c": null,
+              "TotalEMICount__c": null,
+              "ClaimSinceInception__c": null,
+              "ProductType__c": null,
+              "IntermediaryType__c": null,
+              "BalancePremium__c": null,
+              "CountOfEMIPaid__c": null,
+              "CountOfEMIDue__c": null,
+              "Vertical__c": null,
+              "AccountId": null,
+              "NPSSurveyType__c": null,
+              "NPSScore__c": null,
+              "NPSResponseDate__c": null,
+              "CustomerTypeNPS__c": null,
+              "PolicyCategory__c": null,
+              "PEDFlag__c": null,
+              "CancellationEndorsementType__c": null,
+              "CreatedDate": null,
+              "LastModifiedDate": null,
+              "PolicyRenewalCount__c": null,
+              "LastClaimInitiationDate__c": null,
+              "Vintage__c": null
+            },
+            "entity": "policy",
+            "status": "READY"
+          }
+        }
+      }
+    ]
+  },
+  "type": "JOLT_TRANSFORM",
+  "updatedAt": {
+    "$date": "2026-06-22T06:25:34.281Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6a3261d29cbc0635bae5b18d"
+  },
+  "name": "transformLeadGL",
+  "active": true,
+  "params": {
+    "updateDataFlow": true,
+    "config": [
+      {
+        "operation": "shift",
+        "spec": {
+          "read": {
+            "data": {
+              "*": {
+                "lead_uuid": [
+                  "[&1].record.lead_uuid",
+                  "[&1].recordId"
+                ],
+                "mobile_number_e": "[&1].record.mobile_number",
+                "credit_card_count": "[&1].record.credit_card_count",
+                "total_credit_accounts": "[&1].record.total_credit_accounts",
+                "total_credit_card_limits": "[&1].record.total_credit_card_limits",
+                "total_late_payment_days": "[&1].record.total_late_payment_days",
+                "full_name": "[&1].record.full_name",
+                "gender": "[&1].record.gender",
+                "age": "[&1].record.age",
+                "latest_pincode": "[&1].record.latest_pincode",
+                "score_v3": "[&1].record.score_v3",
+                "affluence": "[&1].record.affluence",
+                "state": "[&1].record.state",
+                "languages": "[&1].record.languages"
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "type": "JOLT_TRANSFORM"
+},
+{
+  "_id": {
+    "$oid": "6a3261d29cbc0635bae5b18e"
+  },
+  "name": "pushToGreylabs",
+  "active": true,
+  "params": {
+    "request": {
+      "endpoint": {
+        "basePath": "greylabs.basePath",
+        "url": "/voice-ai/api/v1/data/webhook/lead/connector.1f28e56a-9c3c-4ab6-b675-53c2ba097f35",
+        "method": "POST"
+      },
+      "headers": {
+        "Content-Type": "application/json",
+        "X-API-Key": "${GREYLABS_APIKEY}",
+        "X-API-Secret": "${GREYLABS_APISECRET}"
+      },
+      "variables": [
+        {
+          "name": "GREYLABS_APIKEY",
+          "type": "env",
+          "value": "greylabs.xApiKey"
+        },
+        {
+          "name": "GREYLABS_APISECRET",
+          "type": "env",
+          "value": "greylabs.xApiSecret"
+        },
+        {
+          "name": "SINK_RECORDS",
+          "type": "context",
+          "value": "sinkRecords"
+        }
+      ],
+      "body": [
+        {
+          "name": "data",
+          "type": "dynamic",
+          "value": "${SINK_RECORDS}"
+        }
+      ]
+    },
+    "response": null
+  },
+  "type": "API"
+},
+{
+  "_id": {
+    "$oid": "6a437bee3130de1d03485005"
+  },
+  "name": "zohoAccessToken",
+  "active": true,
+  "params": {
+    "request": {
+      "endpoint": {
+        "basePath": "zoho.basePath",
+        "url": "/oauth/v2/token",
+        "method": "POST"
+      },
+      "headers": {
+        "content-type": "application/x-www-form-urlencoded"
+      },
+      "body": [
+        {
+          "name": "grant_type",
+          "value": "refresh_token",
+          "type": "static"
+        },
+        {
+          "name": "client_id",
+          "value": "${CLIENT_ID}",
+          "type": "dynamic"
+        },
+        {
+          "name": "client_secret",
+          "value": "${CLIENT_SECRET}",
+          "type": "dynamic"
+        },
+        {
+          "name": "refresh_token",
+          "value": "${REFRESH_TOKEN}",
+          "type": "dynamic"
+        }
+      ],
+      "variables": [
+        {
+          "name": "CLIENT_ID",
+          "type": "env",
+          "value": "zoho.clientId"
+        },
+        {
+          "name": "CLIENT_SECRET",
+          "type": "env",
+          "value": "zoho.clientSecret"
+        },
+        {
+          "name": "REFRESH_TOKEN",
+          "type": "env",
+          "value": "zoho.refreshToken"
+        }
+      ]
+    },
+    "response": {
+      "params": [
+        {
+          "key": "accessToken",
+          "value": "access_token"
+        },
+        {
+          "key": "apiDomain",
+          "value": "api_domain"
+        },
+        {
+          "key": "tokenType",
+          "value": "token_type"
+        }
+      ]
+    }
+  },
+  "cache": {
+    "expiryTime": 1800
+  },
+  "type": "API"
+},
+{
+  "_id": {
+    "$oid": "6a437bee3130de1d03485006"
+  },
+  "name": "zohoDecryptRenewalQuoteFields",
+  "active": true,
+  "params": {
+    "updateDataFlow": true,
+    "dataSource": "sinkRecords",
+    "fields": [
+      {
+        "source": "data[0].Intermediator_Email",
+        "target": "data[0].Intermediator_Email"
+      },
+      {
+        "source": "data[0].Email",
+        "target": "data[0].Email"
+      },
+      {
+        "source": "data[0].Sales_Manager_Phone",
+        "target": "data[0].Sales_Manager_Phone"
+      },
+      {
+        "source": "data[0].Intermediator_Phone",
+        "target": "data[0].Intermediator_Phone"
+      },
+      {
+        "source": "data[0].Proposer_Contact_No",
+        "target": "data[0].Proposer_Contact_No"
+      }
+    ]
+  },
+  "type": "DECRYPT"
+},
+{
+  "_id": {
+    "$oid": "6a437bee3130de1d0348500a"
+  },
+  "name": "transformPaymentRQ",
+  "active": true,
+  "params": {
+    "updateDataFlow": true,
+    "config": [
+      {
+        "operation": "shift",
+        "spec": {
+          "read": {
+            "data": {
+              "*": {
+                "proposal_number": [
+                  "[&1].record.data[0].Renewal_Reference_Number",
+                  "[&1].recordId"
+                ],
+                "previous_policy_number": "[&1].record.data[0].Policy_Number",
+                "transaction_date": "[&1].record.data[0].Transaction_Date",
+                "transaction_amount": "[&1].record.data[0].Amount",
+                "payment_status": {
+                  "SUCCESS": {
+                    "#Payment Success": "[&3].record.data[0].Payment_Status"
+                  },
+                  "*": {
+                    "@(2,payment_status)": "[&3].record.data[0].Payment_Status"
+                  }
+                },
+                "#Data Lake": [
+                  "[&1].record.data[0].Office_Code",
+                  "[&1].record.data[0].Payby_Type"
+                ]
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "type": "JOLT_TRANSFORM"
+},
+{
+  "_id": {
+    "$oid": "6a437bee3130de1d0348500b"
+  },
+  "name": "zohoUploadRQGoldenCopy",
+  "active": true,
+  "params": {
+    "request": {
+      "endpoint": {
+        "basePath": "zoho.apiDomain",
+        "url": "/crm/v2/Renewal_Policy/upsert",
+        "method": "POST"
+      },
+      "headers": {
+        "content-type": "application/json",
+        "Authorization": "Zoho-oauthtoken ${TOKEN}"
+      },
+      "variables": [
+        {
+          "name": "TOKEN",
+          "type": "context",
+          "value": "zohoAccessToken.accessToken"
+        },
+        {
+          "name": "DATA",
+          "type": "context",
+          "value": "flattenDecryptedRQ.data"
+        },
+        {
+          "name": "TRIGGER",
+          "type": "context",
+          "value": "flattenDecryptedRQ.trigger"
+        }
+      ],
+      "body": [
+        {
+          "name": "data",
+          "type": "dynamic",
+          "value": "${DATA}"
+        },
+        {
+          "name": "trigger",
+          "type": "dynamic",
+          "value": "${TRIGGER}"
+        }
+      ]
+    },
+    "response": null
+  },
+  "type": "API"
+},
+{
+  "_id": {
+    "$oid": "6a437bee3130de1d0348500c"
+  },
+  "name": "zohoUploadRQ",
+  "active": true,
+  "params": {
+    "request": {
+      "endpoint": {
+        "basePath": "zoho.apiDomain",
+        "url": "/crm/v2/Renewal_Policy/upsert",
+        "method": "POST"
+      },
+      "headers": {
+        "content-type": "application/json",
+        "Authorization": "Zoho-oauthtoken ${TOKEN}"
+      },
+      "variables": [
+        {
+          "name": "TOKEN",
+          "type": "context",
+          "value": "zohoAccessToken.accessToken"
+        },
+        {
+          "name": "DATA",
+          "type": "context",
+          "value": "flattenSinkRQ.data"
+        },
+        {
+          "name": "TRIGGER",
+          "type": "context",
+          "value": "flattenSinkRQ.trigger"
+        }
+      ],
+      "body": [
+        {
+          "name": "data",
+          "type": "dynamic",
+          "value": "${DATA}"
+        },
+        {
+          "name": "trigger",
+          "type": "dynamic",
+          "value": "${TRIGGER}"
+        }
+      ]
+    },
+    "response": null
+  },
+  "type": "API"
+},
+{
+  "_id": {
+    "$oid": "6a437bee3130de1d0348500d"
+  },
+  "name": "zohoUploadRQPayment",
+  "active": true,
+  "params": {
+    "request": {
+      "endpoint": {
+        "basePath": "zoho.apiDomain",
+        "url": "/crm/v2/Payment_History",
+        "method": "POST"
+      },
+      "headers": {
+        "content-type": "application/json",
+        "Authorization": "Zoho-oauthtoken ${TOKEN}"
+      },
+      "variables": [
+        {
+          "name": "TOKEN",
+          "type": "context",
+          "value": "zohoAccessToken.accessToken"
+        },
+        {
+          "name": "DATA",
+          "type": "context",
+          "value": "flattenSinkRQ.data"
+        }
+      ],
+      "body": [
+        {
+          "name": "data",
+          "type": "dynamic",
+          "value": "${DATA}"
+        }
+      ]
+    },
+    "response": null
+  },
+  "type": "API"
+},
+{
+  "_id": {
+    "$oid": "6a437bee3130de1d0348500e"
+  },
+  "name": "flattenDecryptedRQ",
+  "active": true,
+  "params": {
+    "updateDataFlow": true,
+    "config": [
+      {
+        "operation": "shift",
+        "spec": {
+          "zohoDecryptRenewalQuoteFields": {
+            "0": ""
+          }
+        }
+      }
+    ]
+  },
+  "type": "JOLT_TRANSFORM"
+},
+{
+  "_id": {
+    "$oid": "6a437bee3130de1d0348500f"
+  },
+  "name": "flattenSinkRQ",
+  "active": true,
+  "params": {
+    "updateDataFlow": true,
+    "config": [
+      {
+        "operation": "shift",
+        "spec": {
+          "sinkRecords": {
+            "0": ""
+          }
+        }
+      }
+    ]
+  },
+  "type": "JOLT_TRANSFORM"
+},
+{
+  "_id": {
+    "$oid": "6a4c98878d0084dfb731be71"
+  },
+  "name": "transformRQ",
+  "active": true,
+  "params": {
+    "updateDataFlow": true,
+    "config": [
+      {
+        "operation": "shift",
+        "spec": {
+          "read": {
+            "data": {
+              "*": {
+                "*": "[&1].@(4,read.columns[&].name)"
+              }
+            }
+          }
+        }
+      },
+      {
+        "operation": "shift",
+        "spec": {
+          "*": {
+            "RENEWAL_POLICY_CONV_REF_NO_SPLIT": {
+              "TRUE": {
+                "#true": "[&3].record.data[0].Split_Renewal",
+                "#Parent": "[&3].record.data[0].ParentChild"
+              },
+              "FALSE": {
+                "#false": "[&3].record.data[0].Split_Renewal"
+              }
+            },
+            "RENEWAL_POLICY_CONV_REF_NO_SPLITCATEGORY": {
+              "PARENT": {
+                "#Parent": "[&3].record.data[0].ParentChild"
+              },
+              "CHILD": {
+                "#Child": "[&3].record.data[0].ParentChild"
+              }
+            },
+            "INTERMEDIATOR_EMAIL_e": "[&1].record.data[0].Intermediator_Email",
+            "NUMBER_OF_YEAR": "[&1].record.data[0].Number_of_Year",
+            "PROPOSER_EMAIL_ID_e": "[&1].record.data[0].Email",
+            "POLICY_FROM_DATE": "[&1].record.data[0].From_Date",
+            "GRACE_PERIOD_END_DATE": "[&1].record.data[0].Grace_Period_End_Date",
+            "PREMIA_CONVERTED_POLICY_TOTAL_PREMIUM": "[&1].record.data[0].Premia_Converted_Policy_Total_Premium",
+            "ALL_EMI_PAID": "[&1].record.data[0].All_EMI_Paid",
+            "PENDING_EMI_COUNT": "[&1].record.data[0].EMI_Pending",
+            "SALES_MANAGER_PHONE_e": "[&1].record.data[0].Sales_Manager_Phone",
+            "INSTALLMENT_PREMIUM_AMOUNT": "[&1].record.data[0].Installment_Premium_amount",
+            "OFFICE_CODE": "[&1].record.data[0].Premia_Division_Name",
+            "PRODUCT_CODE": "[&1].record.data[0].Premia_Product_Code",
+            "BRANCH_MANAGER_NAME": "[&1].record.data[0].Branch_Manager_Name",
+            "PAYMENT_DATE": "[&1].record.data[0].Payment_Date",
+            "INSTALLMENT_TAX": "[&1].record.data[0].Installment_Tax",
+            "SOURCE": "[&1].record.data[0].Policy_Source",
+            "PROPOSAL_TYPE": "[&1].record.data[0].Renewal_Policy_Type",
+            "PREVIOUS_POLICY_NUMBER": "[&1].record.data[0].Previous_Policy_No",
+            "CURRENCY_POLICY_PREMIUM_GST": "[&1].record.data[0].Currency_Policy_Premium_GST",
+            "RENEWAL_PAYMENT_TYPE": "[&1].record.data[0].Renewal_Payment_Type",
+            "INTERMEDIARY_CODE": "[&1].record.data[0].Intermediator_Code",
+            "FULFILLER_CODE": "[&1].record.data[0].Sales_Manager_Code",
+            "CURRENT_PREMIUM_TAX": "[&1].record.data[0].Service_Tax",
+            "PIN_CODE": "[&1].record.data[0].Renewal_Policy_Pincode",
+            "POLICY_CONVERTED_DATE": "[&1].record.data[0].Policy_Converted_Date",
+            "PREMIA_CURRENT_POLICY_SUM_INSURED": "[&1].record.data[0].Premia_Current_Policy_Sum_Insured",
+            "RENEWAL_STATUS": "[&1].record.data[0].Renewal_Status",
+            "INSTALLMENT_TOTAL_PREMIUM": "[&1].record.data[0].Installment_Total_Premium",
+            "NCB": "[&1].record.data[0].NCB",
+            "INTERMEDIARY_NAME": "[&1].record.data[0].Intermediator_Name",
+            "BRANCH_MANAGER_PH_NO": [
+              "[&1].record.data[0].Branch_Manager_Mobile",
+              "[&1].record.data[0].Branch_Manager_Phone"
+            ],
+            "ENVIRONMENT": "[&1].record.data[0].Environment",
+            "BRANCH_MANAGER_CODE": "[&1].record.data[0].Branch_Manager_Code",
+            "INTERMEDIATOR_PHONE_e": "[&1].record.data[0].Intermediator_Phone",
+            "SECONDARY_EMAIL": "[&1].record.data[0].Secondary_Email",
+            "EMI_POLICY": "[&1].record.data[0].Emi_Policy",
+            "DIVISON_CODE": "[&1].record.data[0].Divison_Code",
+            "RECORD_RECEIVED_FROM_SYSTEM": "[&1].record.data[0].Record_received_from_system",
+            "PROPOSER_CONTACT_NO_e": "[&1].record.data[0].Proposer_Contact_No",
+            "RENEWAL_LOCATION": "[&1].record.data[0].Renewal_Location",
+            "WORKFLOW_TRIGGER": "[&1].record.data[0].Workflow_trigger",
+            "PAYMENT_STATUS": "[&1].record.data[0].Payment_Status",
+            "RENEWAL_ID": "[&1].record.data[0].Renewal_ID",
+            "POLICY_TO_DATE": "[&1].record.data[0].Expire_Date",
+            "RENEWAL_POLICY_REF_NO": [
+              "[&1].record.data[0].Renewal_Policy_Ref_No",
+              "[&1].recordId"
+            ],
+            "POLICY_RENEWED": "[&1].record.data[0].Policy_Renewed",
+            "PREMIA_CURRENT_POLICY_NO": "[&1].record.data[0].Premia_Current_Policy_No",
+            "PAYMENT_MODE": "[&1].record.data[0].Payment_Mode",
+            "INSTALLMENT_YEAR": "[&1].record.data[0].Installment_Year",
+            "SUM_INSURED": "[&1].record.data[0].Sum_Insured",
+            "CURRENT_POLICY_PREMIUM_TOTAL_AMOUNT": "[&1].record.data[0].Current_Policy_Premium_Total_Amount",
+            "PREMIA_CONVERTED_PREMIUM_AMOUNT": "[&1].record.data[0].Premia_Converted_Premium_Amount",
+            "CONTACT_NAME": "[&1].record.data[0].Contact_Name",
+            "PREMIA_CONVERTED_POLICY_NO": "[&1].record.data[0].Premia_Converted_Policy_No",
+            "PREMIUM_AMOUNT": "[&1].record.data[0].Premium_Amount",
+            "CLAIM_STATUS": "[&1].record.data[0].Claim_Status",
+            "PREMIA_CONTACT_CODE": "[&1].record.data[0].Premia_Contact_Code",
+            "CURRENT_POLICY_PREMIUM_AMOUNT": "[&1].record.data[0].Current_Policy_Premium_amount",
+            "PRODUCT_NAME": "[&1].record.data[0].Premia_Product_Name",
+            "CURRENT_PREMIUM_TOTAL": "[&1].record.data[0].Total",
+            "PREMIA_CONVERTED_POLICY_GST": "[&1].record.data[0].Premia_Converted_Policy_GST",
+            "RENEWAL_ADDRESS3": "[&1].record.data[0].Renewal_Address3",
+            "RENEWAL_ADDRESS1": "[&1].record.data[0].Renewal_Address1",
+            "NCD_ISSUED": "[&1].record.data[0].NCD_Issued",
+            "SALES_MANAGER_NAME": "[&1].record.data[0].Sales_Manager_Name",
+            "NO_OF_INSTALLMENT": "[&1].record.data[0].No_of_Installment",
+            "RENEWAL_ADDRESS2": "[&1].record.data[0].Renewal_Address2",
+            "UPSELL_SUM_INSURED_1": "[&1].record.data[0].Upsell_Premium[0].Upsell_Sum_Insured",
+            "UPSELL_PREMIUM_1": "[&1].record.data[0].Upsell_Premium[0].Upsell_Premium_Amount",
+            "UPSELL_GST_1": "[&1].record.data[0].Upsell_Premium[0].GST",
+            "UPSELL_TOTAL_1": "[&1].record.data[0].Upsell_Premium[0].Upsell_TOTAL",
+            "UPSELL_SUM_INSURED_2": "[&1].record.data[0].Upsell_Premium[1].Upsell_Sum_Insured",
+            "UPSELL_PREMIUM_2": "[&1].record.data[0].Upsell_Premium[1].Upsell_Premium_Amount",
+            "UPSELL_GST_2": "[&1].record.data[0].Upsell_Premium[1].GST",
+            "UPSELL_TOTAL_2": "[&1].record.data[0].Upsell_Premium[1].Upsell_TOTAL",
+            "UPSELL_SUM_INSURED_3": "[&1].record.data[0].Upsell_Premium[2].Upsell_Sum_Insured",
+            "UPSELL_PREMIUM_3": "[&1].record.data[0].Upsell_Premium[2].Upsell_Premium_Amount",
+            "UPSELL_GST_3": "[&1].record.data[0].Upsell_Premium[2].GST",
+            "UPSELL_TOTAL_3": "[&1].record.data[0].Upsell_Premium[2].Upsell_TOTAL",
+            "UPSELL_SUM_INSURED_4": "[&1].record.data[0].Upsell_Premium[3].Upsell_Sum_Insured",
+            "UPSELL_PREMIUM_4": "[&1].record.data[0].Upsell_Premium[3].Upsell_Premium_Amount",
+            "UPSELL_GST_4": "[&1].record.data[0].Upsell_Premium[3].GST",
+            "UPSELL_TOTAL_4": "[&1].record.data[0].Upsell_Premium[3].Upsell_TOTAL",
+            "UPSELL_SUM_INSURED_5": "[&1].record.data[0].Upsell_Premium[4].Upsell_Sum_Insured",
+            "UPSELL_PREMIUM_5": "[&1].record.data[0].Upsell_Premium[4].Upsell_Premium_Amount",
+            "UPSELL_GST_5": "[&1].record.data[0].Upsell_Premium[4].GST",
+            "UPSELL_TOTAL_5": "[&1].record.data[0].Upsell_Premium[4].Upsell_TOTAL"
+          }
+        }
+      },
+      {
+        "operation": "modify-overwrite-beta",
+        "spec": {
+          "*": {
+            "record": {
+              "data": {
+                "*": {
+                  "ParentChild": "=lastElement(@(1,ParentChild))"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "operation": "default",
+        "spec": {
+          "*": {
+            "record": {
+              "trigger": [
+                "workflow"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "operation": "modify-overwrite-beta",
+        "spec": {
+          "*": {
+            "record": {
+              "data": {
+                "*": {
+                  "Split_Renewal": "=toBoolean(@(1,Split_Renewal))",
+                  "Policy_Renewed": "=toBoolean(@(1,Policy_Renewed))"
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "type": "JOLT_TRANSFORM"
+},
+{
+  "_id": {
+    "$oid": "6a4c98878d0084dfb731be72"
+  },
+  "name": "transformCancelledRQ",
+  "active": true,
+  "params": {
+    "updateDataFlow": true,
+    "config": [
+      {
+        "operation": "shift",
+        "spec": {
+          "read": {
+            "data": {
+              "*": {
+                "*": "[&1].@(4,read.columns[&].name)"
+              }
+            }
+          }
+        }
+      },
+      {
+        "operation": "shift",
+        "spec": {
+          "*": {
+            "RENEWAL_POLICY_CONV_REF_NO_SPLIT": {
+              "TRUE": {
+                "#true": "[&3].record.data[0].Split_Renewal",
+                "#Parent": "[&3].record.data[0].ParentChild"
+              },
+              "FALSE": {
+                "#false": "[&3].record.data[0].Split_Renewal"
+              }
+            },
+            "RENEWAL_POLICY_CONV_REF_NO_SPLITCATEGORY": {
+              "PARENT": {
+                "#Parent": "[&3].record.data[0].ParentChild"
+              },
+              "CHILD": {
+                "#Child": "[&3].record.data[0].ParentChild"
+              }
+            },
+            "ALL_EMI_PAID": "[&1].record.data[0].All_EMI_Paid",
+            "PENDING_EMI_COUNT": "[&1].record.data[0].EMI_Pending",
+            "RENEWAL_STATUS": "[&1].record.data[0].Renewal_Status",
+            "RENEWAL_POLICY_REF_NO": [
+              "[&1].record.data[0].Renewal_Policy_Ref_No",
+              "[&1].recordId"
+            ]
+          }
+        }
+      },
+      {
+        "operation": "default",
+        "spec": {
+          "*": {
+            "record": {
+              "trigger": [
+                "workflow"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "operation": "modify-overwrite-beta",
+        "spec": {
+          "*": {
+            "record": {
+              "data": {
+                "*": {
+                  "Renewal_Status": "Cancelled",
+                  "Split_Renewal": "=toBoolean(@(1,Split_Renewal))",
+                  "ParentChild": "=lastElement(@(1,ParentChild))"
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "type": "JOLT_TRANSFORM"
+},
+{
+  "_id": {
+    "$oid": "6a4c98878d0084dfb731be73"
+  },
+  "name": "transformPolicyRQ",
+  "active": true,
+  "params": {
+    "updateDataFlow": true,
+    "config": [
+      {
+        "operation": "shift",
+        "spec": {
+          "read": {
+            "data": {
+              "*": {
+                "*": "[&1].@(4,read.columns[&].name)"
+              }
+            }
+          }
+        }
+      },
+      {
+        "operation": "shift",
+        "spec": {
+          "*": {
+            "POLICY_CONVERTED_DATE": "[&1].record.data[0].Policy_Converted_Date",
+            "RENEWED_PRODUCT_CODE": "[&1].record.data[0].Renewed_Product_Code",
+            "PAYMENT_MODE": "[&1].record.data[0].Payment_Mode",
+            "PREMIA_CONVERTED_POLICY_TOTAL_PREMIUM": "[&1].record.data[0].Premia_Converted_Policy_Total_Premium",
+            "RECORD_RECEIVED_FROM_SYSTEM": "[&1].record.data[0].Record_received_from_system",
+            "PREMIA_CONVERTED_PREMIUM_AMOUNT": "[&1].record.data[0].Premia_Converted_Premium_Amount",
+            "PAYMENT_DATE": "[&1].record.data[0].Payment_Date",
+            "PREMIA_CONVERTED_POLICY_NO": "[&1].record.data[0].Premia_Converted_Policy_No",
+            "PAYMENT_STATUS": "[&1].record.data[0].Payment_Status",
+            "RENEWED_SUM_INSURED": "[&1].record.data[0].Renewed_Sum_Insured",
+            "SOURCE": "[&1].record.data[0].Policy_Source",
+            "RENEWAL_POLICY_REF_NO": [
+              "[&1].record.data[0].Renewal_Policy_Ref_No",
+              "[&1].recordId"
+            ],
+            "ENVIRONMENT": "[&1].record.data[0].Environment",
+            "RENEWED_PRODUCT_NAME": "[&1].record.data[0].Renewed_Product_Name",
+            "RENEWED_POLICY_CON_REF_NO": "[&1].record.data[0].Renewal_Policy_Conv_Ref_No",
+            "RENEWAL_POLICY_CONV_REF_NO_SPLIT": "[&1].record.data[0].Renewal_Policy_Conv_Ref_No_Split",
+            "RENEWAL_POLICY_CONV_REF_NO_SPLITCATEGORY": {
+              "CHILD": {
+                "#Child": "[&3].record.data[0].Renewal_Policy_Conv_Ref_No_SplitCategory"
+              },
+              "*": {
+                "*": "[&3].record.data[0].Renewal_Policy_Conv_Ref_No_SplitCategory"
+              }
+            },
+            "POLICY_RENEWED": "[&1].record.data[0].Policy_Renewed",
+            "PREMIA_CONVERTED_POLICY_GST": "[&1].record.data[0].Premia_Converted_Policy_GST"
+          }
+        }
+      },
+      {
+        "operation": "default",
+        "spec": {
+          "*": {
+            "record": {
+              "trigger": [
+                "workflow"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "operation": "modify-overwrite-beta",
+        "spec": {
+          "*": {
+            "record": {
+              "data": {
+                "*": {
+                  "Renewal_Policy_Conv_Ref_No_Split": "=toBoolean(@(1,Renewal_Policy_Conv_Ref_No_Split))",
+                  "Policy_Renewed": "=toBoolean(@(1,Policy_Renewed))"
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "type": "JOLT_TRANSFORM"
+},
+{
+  "_id": {
+    "$oid": "6a54c0731e91a0fc4fe4dcc9"
+  },
+  "name": "sfDecryptEmiFields",
+  "active": true,
+  "createdAt": {
+    "$date": "2026-04-28T11:21:52.362Z"
+  },
+  "params": {
+    "updateDataFlow": true,
+    "dataSource": "sinkRecords",
+    "fields": [
+      {
+        "source": "Phone",
+        "target": "Phone"
+      }
+    ]
+  },
+  "type": "DECRYPT",
+  "updatedAt": {
+    "$date": "2026-04-30T19:10:52.506Z"
+  }
+}]
