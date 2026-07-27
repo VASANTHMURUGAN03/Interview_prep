@@ -117,3 +117,34 @@ step executions collection example
     "$date": "2026-06-03T07:51:57.987Z"
   }
 }
+
+
+result_insrd_2 = result_insrd_1.filter("PLCY_NO IN ('1338112600023786','1959112500095878')")
+ 
+mysql_cover = result_insrd_2.selectExpr(
+    "PLCY_NO AS POLICY_NUMBER",
+    "HLTH_CARD_NO AS INSURED_HEALTH_ID_CARD_NUMBER",
+    "PLCY_PROD_CD AS PRODUCT_CODE",
+    "'EPS-I'  AS PRCHCODE",
+    "'ADDON_COVER_SECTION_I' AS PRCH_CODE_MDM",
+    "'Y' AS PRCH_MAND_YN",
+    "CAST(NULL AS STRING) AS COVER_SUBLIMIT",
+    "'2026-03-17' AS REPORTED_DATE",
+    "'2026-03-17 00:00:12' AS LOAD_TIMESTAMP",
+    "'Extra Protect Section - 1' AS PRCH_DESC",
+    "'Extra Protect Section - 1' AS PRCH_CVR_TYPE"
+    )
+ 
+mysql_cover_1 = mysql_cover.select(
+    *[F.col(c).cast("string") if dict(mysql_cover.dtypes)[c] == "void" else F.col(c) for c in mysql_cover.columns]
+)
+ 
+mysql_cover_1.write.jdbc(
+    url=jdbc_url_mysql,
+    table="agg_policy_cover_dems",
+    mode="append",
+    properties=jdbc_properties_mysql
+)
+print(' Data inserted to the MySQL table COVER TABLE')
+display(mysql_cover_1)
+ 
