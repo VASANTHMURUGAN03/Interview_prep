@@ -1,0 +1,167 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '4.1.0'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id "org.sonarqube" version "7.2.3.7755"
+    id 'jacoco'
+}
+
+group = 'com.star.databridge'
+version = '0.0.1-SNAPSHOT'
+description = 'initial setup'
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+ext {
+    set('logback.version', '1.5.36')
+    set('tomcat.version', '11.0.23')
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+dependencies {
+    implementation 'com.jayway.jsonpath:json-path:2.9.0'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    //below 3 for snyk
+    implementation 'org.apache.tomcat.embed:tomcat-embed-core:11.0.23'
+    implementation 'org.apache.httpcomponents.core5:httpcore5-h2:5.4.3'
+    implementation 'ch.qos.logback:logback-core:1.5.36'
+    implementation 'org.apache.httpcomponents.client5:httpclient5'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'net.logstash.logback:logstash-logback-encoder:8.1'
+    implementation 'org.springframework.boot:spring-boot-starter-kafka'
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    runtimeOnly 'org.postgresql:postgresql:42.7.12'
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.18.9'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+    // Jolt uses Jackson 2 internally, but we only call Chainr.fromSpec(List) and
+    // chainr.transform(Map) — neither path loads Jackson classes at runtime.
+    implementation 'com.bazaarvoice.jolt:jolt-core:0.1.8'
+    implementation 'com.auth0:java-jwt:4.4.0'
+
+    // --- REMOVED: ShedLock — replaced by JobRunr, which handles distributed-safe
+    // recurring execution itself via its own MongoDB-backed storage. See
+    // config/JobRunrConfig.java and service/SchedulingService.java.
+    //   implementation 'net.javacrumbs.shedlock:shedlock-spring:6.3.1'
+    //   implementation 'net.javacrumbs.shedlock:shedlock-provider-mongo:6.3.1'
+
+    // --- ADDED: JobRunr.
+    // VERIFY BEFORE BUILDING: you're on Spring Boot 4.1.0, which is very new
+    // (Spring Framework 7 generation). JobRunr's Spring Boot starter artifacts
+    // are historically versioned per Spring Boot MAJOR line (e.g.
+    // jobrunr-spring-boot-3-starter for Boot 3.x). I could not confirm whether
+    // JobRunr has published a Boot-4-compatible starter as of this delivery —
+    // check https://www.jobrunr.io/en/documentation/installation/ (or Maven
+    // Central) for the artifact id and version that actually supports Spring
+    // Boot 4 / Spring Framework 7 before trusting this line. If no Boot-4
+    // starter exists yet, the fallback is the plain `org.jobrunr:jobrunr` core
+    // artifact configured manually (JobRunr.configure()...) instead of the
+    // starter's auto-configuration — a materially different setup from what
+    // config/JobRunrConfig.java assumes, so re-check that file too if you end
+    // up needing the fallback.
+    implementation 'org.jobrunr:jobrunr-spring-boot-3-starter:7.3.1'
+
+    testImplementation('org.springframework.kafka:spring-kafka-test') {
+        exclude group: 'org.apache.kafka', module: 'kafka-clients'
+    }
+    implementation 'com.starhealth:star-crypto-util:2.1.1'
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
+    testImplementation 'org.apache.kafka:kafka-clients'
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    implementation 'io.micrometer:micrometer-observation'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+    implementation 'org.springframework.boot:spring-boot-micrometer-tracing-brave'
+    implementation 'io.micrometer:micrometer-tracing-bridge-brave'
+    implementation 'org.bouncycastle:bcprov-jdk18on:1.84'
+}
+
+sonarqube {
+    properties {
+        property "sonar.token", project.findProperty("SONAR_TOKEN") ?: System.getenv("SONAR_TOKEN")
+        property "sonar.host.url", project.findProperty("SONAR_HOST") ?: System.getenv("SONAR_HOST")
+        property "sonar.java.coveragePlugin", "jacoco"
+        property "sonar.coverage.exclusions", ""
+    }
+}
+
+jacoco {
+    toolVersion = "0.8.10" // Replace this with your JaCoCo version
+}
+
+test {
+    jacoco {
+        // This is similar to prepare-agent in Maven
+        destinationFile = layout.buildDirectory.file("jacoco/test.exec").get().asFile
+        excludes = []
+    }
+
+    reports {
+        junitXml.required = true // Set custom directory
+        junitXml.mergeReruns = true // Combine test rerun results into a single XML file
+    }
+}
+
+jacocoTestReport {
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            element = 'CLASS'
+        }
+    }
+}
+
+task mergeTestReports {
+    doLast {
+        def reportDir = file("$buildDir/test-results/test")
+        def mergedReportFile = file("$buildDir/test-results/test/merged-test-results.xml")
+
+        def reportFiles = reportDir.listFiles().findAll { it.name.endsWith('.xml') }
+
+        if (reportFiles.size() > 1) {
+            println "Merging ${reportFiles.size()} test result files into one..."
+
+            mergedReportFile.withWriter { writer ->
+                writer.writeLine('<testsuites>')
+
+                reportFiles.each { file ->
+                    def lines = file.readLines()
+                    lines.drop(1).dropRight(1).each { line ->
+                        writer.writeLine(line)
+                    }
+                }
+
+                writer.writeLine('</testsuites>')
+            }
+
+            println "Merged test report created at: $mergedReportFile"
+        } else {
+            println "No multiple XML files to merge."
+        }
+    }
+}
+
+test.finalizedBy(mergeTestReports) // Ensure merging happens after tests run
+
+tasks.check.dependsOn jacocoTestCoverageVerification
+tasks.named('build') {
+    dependsOn tasks.named('jacocoTestReport')
+}
