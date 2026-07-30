@@ -165,3 +165,38 @@ tasks.check.dependsOn jacocoTestCoverageVerification
 tasks.named('build') {
     dependsOn tasks.named('jacocoTestReport')
 }
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+An attempt was made to call a method that does not exist. The attempt was made from the following location:
+
+    org.jobrunr.spring.autoconfigure.JobRunrAutoConfiguration.backgroundJobServerConfiguration(JobRunrAutoConfiguration.java:102)
+
+The following method did not exist:
+
+    'org.springframework.boot.context.properties.PropertyMapper$Source org.springframework.boot.context.properties.PropertyMapper$Source.whenNonNull()'
+
+The calling method's class, org.jobrunr.spring.autoconfigure.JobRunrAutoConfiguration, was loaded from the following location:
+
+    jar:file:/C:/Users/vasanth.murugan/.gradle/caches/modules-2/files-2.1/org.jobrunr/jobrunr-spring-boot-3-starter/7.3.1/d4dd990dd3bd1ec19ea17e16bdd6a45a5e200dd0/jobrunr-spring-boot-3-starter-7.3.1.jar!/org/jobrunr/spring/autoconfigure/JobRunrAutoConfiguration.class
+
+The called method's class, org.springframework.boot.context.properties.PropertyMapper$Source, is available from the following locations:
+
+    jar:file:/C:/Users/vasanth.murugan/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot/4.1.0/bcf26d4c27ab080ef60c13220e96a37d687f9e26/spring-boot-4.1.0.jar!/org/springframework/boot/context/properties/PropertyMapper$Source.class
+
+The called method's class hierarchy was loaded from the following locations:
+
+    org.springframework.boot.context.properties.PropertyMapper.Source: file:/C:/Users/vasanth.murugan/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot/4.1.0/bcf26d4c27ab080ef60c13220e96a37d687f9e26/spring-boot-4.1.0.jar
+
+
+Action:
+
+Correct the classpath of your application so that it contains compatible versions of the classes org.jobrunr.spring.autoconfigure.JobRunrAutoConfiguration and org.springframework.boot.context.properties.PropertyMapper$Source
+
+
+> Task :com.star.databridge.DataBridgeApplication.main() FAILED
+
+
