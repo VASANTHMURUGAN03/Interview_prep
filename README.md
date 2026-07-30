@@ -118,33 +118,148 @@ step executions collection example
   }
 }
 
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '4.1.0'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id "org.sonarqube" version "7.2.3.7755"
+    id 'jacoco'
+}
 
-result_insrd_2 = result_insrd_1.filter("PLCY_NO IN ('1338112600023786','1959112500095878')")
- 
-mysql_cover = result_insrd_2.selectExpr(
-    "PLCY_NO AS POLICY_NUMBER",
-    "HLTH_CARD_NO AS INSURED_HEALTH_ID_CARD_NUMBER",
-    "PLCY_PROD_CD AS PRODUCT_CODE",
-    "'EPS-I'  AS PRCHCODE",
-    "'ADDON_COVER_SECTION_I' AS PRCH_CODE_MDM",
-    "'Y' AS PRCH_MAND_YN",
-    "CAST(NULL AS STRING) AS COVER_SUBLIMIT",
-    "'2026-03-17' AS REPORTED_DATE",
-    "'2026-03-17 00:00:12' AS LOAD_TIMESTAMP",
-    "'Extra Protect Section - 1' AS PRCH_DESC",
-    "'Extra Protect Section - 1' AS PRCH_CVR_TYPE"
-    )
- 
-mysql_cover_1 = mysql_cover.select(
-    *[F.col(c).cast("string") if dict(mysql_cover.dtypes)[c] == "void" else F.col(c) for c in mysql_cover.columns]
-)
- 
-mysql_cover_1.write.jdbc(
-    url=jdbc_url_mysql,
-    table="agg_policy_cover_dems",
-    mode="append",
-    properties=jdbc_properties_mysql
-)
-print(' Data inserted to the MySQL table COVER TABLE')
-display(mysql_cover_1)
- 
+group = 'com.star.databridge'
+version = '0.0.1-SNAPSHOT'
+description = 'initial setup'
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+ext {
+    set('logback.version', '1.5.36')
+    set('tomcat.version', '11.0.23')
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+dependencies {
+    implementation 'com.jayway.jsonpath:json-path:2.9.0'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    //below 3 for snyk
+    implementation 'org.apache.tomcat.embed:tomcat-embed-core:11.0.23'
+    implementation 'org.apache.httpcomponents.core5:httpcore5-h2:5.4.3'
+    implementation 'ch.qos.logback:logback-core:1.5.36'
+    implementation 'org.apache.httpcomponents.client5:httpclient5'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'net.logstash.logback:logstash-logback-encoder:8.1'
+    implementation 'org.springframework.boot:spring-boot-starter-kafka'
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    runtimeOnly 'org.postgresql:postgresql:42.7.12'
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.18.9'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+    // Jolt uses Jackson 2 internally, but we only call Chainr.fromSpec(List) and
+    // chainr.transform(Map) — neither path loads Jackson classes at runtime.
+    implementation 'com.bazaarvoice.jolt:jolt-core:0.1.8'
+    implementation 'com.auth0:java-jwt:4.4.0'
+    // ShedLock — distributed lock for scheduled tasks (one pod per cron trigger)
+    implementation 'net.javacrumbs.shedlock:shedlock-spring:6.3.1'
+    implementation 'net.javacrumbs.shedlock:shedlock-provider-mongo:6.3.1'
+    testImplementation('org.springframework.kafka:spring-kafka-test') {
+        exclude group: 'org.apache.kafka', module: 'kafka-clients'
+    }
+    implementation 'com.starhealth:star-crypto-util:2.1.1'
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
+    testImplementation 'org.apache.kafka:kafka-clients'
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    implementation 'io.micrometer:micrometer-observation'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+    implementation 'org.springframework.boot:spring-boot-micrometer-tracing-brave'
+    implementation 'io.micrometer:micrometer-tracing-bridge-brave'
+    implementation 'org.bouncycastle:bcprov-jdk18on:1.84'
+
+}
+sonarqube {
+    properties {
+        property "sonar.token", project.findProperty("SONAR_TOKEN") ?: System.getenv("SONAR_TOKEN")
+        property "sonar.host.url", project.findProperty("SONAR_HOST") ?: System.getenv("SONAR_HOST")
+        property "sonar.java.coveragePlugin", "jacoco"
+        property "sonar.coverage.exclusions", ""
+    }
+}
+
+jacoco {
+    toolVersion = "0.8.10" // Replace this with your JaCoCo version
+}
+
+test {
+    jacoco {
+        // This is similar to `prepare-agent` in Maven
+        destinationFile = layout.buildDirectory.file("jacoco/test.exec").get().asFile
+        excludes = []
+    }
+
+    reports {
+        junitXml.required=true // Set custom directory
+        junitXml.mergeReruns = true // Combine test rerun results into a single XML file
+    }
+}
+
+jacocoTestReport {
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            element = 'CLASS'
+        }
+    }
+}
+task mergeTestReports {
+    doLast {
+        def reportDir = file("$buildDir/test-results/test")
+        def mergedReportFile = file("$buildDir/test-results/test/merged-test-results.xml")
+
+        def reportFiles = reportDir.listFiles().findAll { it.name.endsWith('.xml') }
+
+        if (reportFiles.size() > 1) {
+            println "Merging ${reportFiles.size()} test result files into one..."
+
+            mergedReportFile.withWriter { writer ->
+                writer.writeLine('<testsuites>')
+
+                reportFiles.each { file ->
+                    def lines = file.readLines()
+                    lines.drop(1).dropRight(1).each { line ->
+                        writer.writeLine(line)
+                    }
+                }
+
+                writer.writeLine('</testsuites>')
+            }
+
+            println "Merged test report created at: $mergedReportFile"
+        } else {
+            println "No multiple XML files to merge."
+        }
+    }
+}
+
+test.finalizedBy(mergeTestReports)  // Ensure merging happens after tests run
+
+tasks.check.dependsOn jacocoTestCoverageVerification
+tasks.named('build') {
+    dependsOn tasks.named('jacocoTestReport')
+}
