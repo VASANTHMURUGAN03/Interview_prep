@@ -1,24 +1,18 @@
-read batch collection example{
-  "_id": {
-    "$oid": "6a2168239c32e8a548522531"
-  },
-  "jobName": "migrateCustomersToSF",
-  "jobExecutionId": "6a2167c64057f4b070a46ddb",
-  "batchNo": 64,
-  "remarks": "Bulk write operation error on MongoDB server 10.31.3.230:27017. Write errors: [BulkWriteError{index=0, code=11000, message='E11000 duplicate key error collection: data-bridge-qa.sync_records index: jobExecutionId_-1_recordId_-1 dup key: { jobExecutionId: \"6a2167c64057f4b070a46ddb\", recordId: \"PI0302887320\" }', details={}}]. ",
-  "status": "FAILED",
-  "retryCount": 3,
-  "createdAt": {
-    "$date": "2026-06-04T11:57:23.650Z"
-  },
-  "updatedAt": {
-    "$date": "2026-06-04T11:57:26.942Z"
-  },
-  "_class": "com.star.databridge.entity.ReadBatchExecutionEntity"
-}
-
-write batch collection example
-{
+The core abstraction
+Every reader (ApiReader, SqlReader) implements DataReader, taking a ReadContext (has both offset (long) and cursor (String) fields — mutually exclusive, picked per job) and returning a ReadResult (has nextOffset, nextCursor, hasMore). Which one's used is decided entirely by PaginationConfig.type ("offset" or "cursor") in the job config's read params — same contract for both API and SQL sources.
+Step by step
+1. First batch — JobExecutionService.triggerJob() creates read batch #1 and publishes it with cursor = null (start from the beginning).
+2. Consumer resolves the value — MigrationReadBatchConsumer.execute() reads PaginationConfig off the job config, then picks based on type:
+Java
+.cursor("CURSOR".equalsIgnoreCase(type) && msg.getNextCursor() != null ? msg.getNextCursor() : "0")
+.offset("OFFSET".equalsIgnoreCase(type) && msg.getNextCursor() != null ? Long.parseLong(msg.getNextCursor()) : 0)
+Worth knowing: the Kafka message and the persisted ReadBatchExecutionEntity.nextCursor field only have one String field — it carries either the cursor token or the offset number as text, disambiguated purely by the config's declared type, not by the message itself.
+4. Reader injects it as a template variable — for API: OFFSET/CURSOR gets substituted into the configured request (e.g. ?offset={{OFFSET}}) before the HTTP call. For SQL: offset becomes a literal OFFSET {{n}} clause; cursor becomes a WHERE <configured predicate> fragment (e.g. id > :lastId), skipped on the first call unless explicitly configured to run on batch #1 too.
+5. After the call, next value gets computed:
+Offset: nextOffset = currentOffset + batchSize; hasMore = (rowCount == batchSize)
+Cursor: extracted from the response via a configured JSONPath (pagination.nextCursorPath) — only if hasMore was true; if extraction fails, nextCursor = null and hasMore collapses to false
+6. Advance — if hasMore, the consumer creates the next ReadBatchExecutionEntity and republishes with that computed value; the current batch gets readBatchService.setSuccessful(readBatch, recordIds, nextCursor) — meaning the value stored on a batch is what the next batch should use, not what that batch itself read with (this is exactly why the manual-retry endpoint had to derive its cursor from the previous batch, from that earlier conversation).
+7. On failure — retries reuse the same cursor (position never advances on retry). If retries exhaust: cursor pagination always aborts the job — there's no way to skip a failed batch without the response that would've told you the next cursor. Offset pagination can optionally skip ahead (continueAtNextOffset, only if failureStrategy=IGNORE) by just computing currentOffset + batchSize and continuing.{
   "_id": {
     "$oid": "6a2167f6a9b57a5a63a7d2ae"
   },
