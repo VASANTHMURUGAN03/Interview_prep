@@ -1,40 +1,18 @@
-package com.star.databridge.config;
+@Bean
+public MongoClient mongoClient(@Value("${spring.data.mongodb.uri}") String uri) {
+    MongoClientSettings settings = MongoClientSettings.builder()
+            .applyConnectionString(new ConnectionString(uri))
+            .uuidRepresentation(UuidRepresentation.STANDARD)
+            .build();
+    return MongoClients.create(settings);
+}
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
-
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
-import java.util.List;
-
-@Configuration
-public class MongoConfig {
-
-    @Bean
-    public MongoCustomConversions mongoCustomConversions() {
-        return new MongoCustomConversions(List.of(
-                new DateToLocalDateTimeConverter(),
-                new LocalDateTimeToDateConverter()
-        ));
-    }
-
-    // ✅ Explicit class
-    static class DateToLocalDateTimeConverter implements Converter<Date, LocalDateTime> {
-        @Override
-        public LocalDateTime convert(Date source) {
-            return source.toInstant()
-                    .atZone(ZoneId.systemDefault())
-                    .toLocalDateTime();
-        }
-    }
-
-    // ✅ Explicit class
-    static class LocalDateTimeToDateConverter implements Converter<LocalDateTime, Date> {
-        @Override
-        public Date convert(LocalDateTime source) {
+@Bean
+public MongoDatabaseFactory mongoDatabaseFactory(MongoClient mongoClient,
+                                                  @Value("${spring.data.mongodb.uri}") String uri) {
+    String databaseName = new ConnectionString(uri).getDatabase();
+    return new SimpleMongoClientDatabaseFactory(mongoClient, databaseName);
+}        public Date convert(LocalDateTime source) {
             return Date.from(
                     source.atZone(ZoneId.systemDefault()).toInstant()
             );
