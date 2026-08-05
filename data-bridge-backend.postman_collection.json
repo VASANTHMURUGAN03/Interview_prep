@@ -1,0 +1,353 @@
+{
+  "info": {
+    "name": "Data Bridge Backend API",
+    "description": "All confirmed endpoints across every controller in the com.star.databridge backend (JobConfigController, JobExecutionController, ProcessStepConfigController, DashboardController, SchedulerController, AuditController, SyncRecordController).\n\nBase URL defaults to the backend directly (includes the /data-bridge context path). To hit everything through the BFF instead, change {{baseUrl}} to http://localhost:8081/api — every path here is identical either way, since the BFF's ProxyController forwards /api/** verbatim.\n\nX-User-Id / X-User-Name headers are sent on write operations — the backend has no real auth yet, so these are what the Job Audit trail uses to record who did what (defaults to \"system\" if omitted).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080/data-bridge", "type": "string" },
+    { "key": "userId", "value": "vasanth.murugan", "type": "string" },
+    { "key": "userName", "value": "Vasanth M", "type": "string" },
+    { "key": "jobName", "value": "migrateCustomersToSF", "type": "string" },
+    { "key": "jobExecutionId", "value": "REPLACE_WITH_REAL_EXECUTION_ID", "type": "string" },
+    { "key": "jobUuid", "value": "REPLACE_WITH_REAL_JOB_UUID", "type": "string" },
+    { "key": "batchId", "value": "REPLACE_WITH_REAL_BATCH_ID", "type": "string" },
+    { "key": "stepName", "value": "salesForceJWT", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Job Config",
+      "item": [
+        {
+          "name": "Upsert Job Config (Create/Update)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-User-Id", "value": "{{userId}}" },
+              { "key": "X-User-Name", "value": "{{userName}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/v1/job-configs", "host": ["{{baseUrl}}"], "path": ["v1", "job-configs"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{jobName}}\",\n  \"entity\": \"customer\",\n  \"strategy\": \"SIMULTANEOUS_READ_WRITE\",\n  \"trigger\": null,\n  \"read\": {\n    \"type\": \"API\",\n    \"parallelThreads\": 1,\n    \"maxRetryCount\": 3,\n    \"failureStrategy\": \"IGNORE\",\n    \"params\": {}\n  },\n  \"process\": [ { \"name\": \"transformSFCustomers\" } ],\n  \"sink\": {\n    \"maxRetryCount\": 3,\n    \"batchSize\": 5000,\n    \"referenceId\": { \"type\": \"context\", \"value\": \"salesforceBatchId.referenceId\" },\n    \"steps\": [ { \"name\": \"salesForceJWT\" }, { \"name\": \"salesForceAccessToken\" } ]\n  },\n  \"ack\": null,\n  \"postComplete\": null,\n  \"report\": { \"emails\": [], \"notificationTemplateId\": \"JOB_COMPLETE_STD\" }\n}"
+            }
+          }
+        },
+        {
+          "name": "List Job Configs",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/v1/job-configs?limit=50&pageNumber=0",
+              "host": ["{{baseUrl}}"], "path": ["v1", "job-configs"],
+              "query": [{ "key": "limit", "value": "50" }, { "key": "pageNumber", "value": "0" }]
+            }
+          }
+        },
+        {
+          "name": "Get Job Config Summaries (with last run/next run)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/v1/job-configs/summary?limit=50&pageNumber=0",
+              "host": ["{{baseUrl}}"], "path": ["v1", "job-configs", "summary"],
+              "query": [{ "key": "limit", "value": "50" }, { "key": "pageNumber", "value": "0" }]
+            }
+          }
+        },
+        {
+          "name": "Get Job Config By Name",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/v1/job-configs/{{jobName}}", "host": ["{{baseUrl}}"], "path": ["v1", "job-configs", "{{jobName}}"] }
+          }
+        },
+        {
+          "name": "Disable Job Config (soft delete)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "X-User-Id", "value": "{{userId}}" },
+              { "key": "X-User-Name", "value": "{{userName}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/v1/job-configs/{{jobName}}", "host": ["{{baseUrl}}"], "path": ["v1", "job-configs", "{{jobName}}"] }
+          }
+        },
+        {
+          "name": "Activate (Re-enable) Job Config",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "X-User-Id", "value": "{{userId}}" },
+              { "key": "X-User-Name", "value": "{{userName}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/v1/job-configs/{{jobName}}/activate", "host": ["{{baseUrl}}"], "path": ["v1", "job-configs", "{{jobName}}", "activate"] }
+          }
+        },
+        {
+          "name": "Update Cron Expression",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-User-Id", "value": "{{userId}}" },
+              { "key": "X-User-Name", "value": "{{userName}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/v1/job-configs/{{jobName}}/cron", "host": ["{{baseUrl}}"], "path": ["v1", "job-configs", "{{jobName}}", "cron"] },
+            "body": { "mode": "raw", "raw": "{\n  \"cron\": \"0 0 6 * * *\"\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Process Step Config",
+      "item": [
+        {
+          "name": "Upsert Process Step (JWT example)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/v1/process-steps/configs", "host": ["{{baseUrl}}"], "path": ["v1", "process-steps", "configs"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{stepName}}\",\n  \"type\": \"JWT\",\n  \"params\": {\n    \"privateKeyPath\": \"salesforce.privateKeyPath\",\n    \"algorithm\": \"RSA256\",\n    \"expiryInSec\": 86400,\n    \"issuer\": \"salesforce.issuer\",\n    \"subject\": \"salesforce.subject\",\n    \"audience\": \"salesforce.audience\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "List Process Steps",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/v1/process-steps/configs", "host": ["{{baseUrl}}"], "path": ["v1", "process-steps", "configs"] }
+          }
+        },
+        {
+          "name": "Get Process Step By Name",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/v1/process-steps/configs/{{stepName}}", "host": ["{{baseUrl}}"], "path": ["v1", "process-steps", "configs", "{{stepName}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Job Execution",
+      "item": [
+        {
+          "name": "Trigger Job (manual)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-User-Id", "value": "{{userId}}" },
+              { "key": "X-User-Name", "value": "{{userName}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/v1/jobs/trigger/{{jobName}}", "host": ["{{baseUrl}}"], "path": ["v1", "jobs", "trigger", "{{jobName}}"] },
+            "body": { "mode": "raw", "raw": "{\n  \"params\": {}\n}" }
+          }
+        },
+        {
+          "name": "Abort Job",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/v1/jobs/abort/{{jobUuid}}", "host": ["{{baseUrl}}"], "path": ["v1", "jobs", "abort", "{{jobUuid}}"] }
+          }
+        },
+        {
+          "name": "List Job Executions",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/v1/jobs/executions?jobName={{jobName}}&status=&limit=20&pageNumber=0",
+              "host": ["{{baseUrl}}"], "path": ["v1", "jobs", "executions"],
+              "query": [
+                { "key": "jobName", "value": "{{jobName}}" },
+                { "key": "status", "value": "" },
+                { "key": "limit", "value": "20" },
+                { "key": "pageNumber", "value": "0" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Job Execution By Id",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/v1/jobs/executions/{{jobExecutionId}}", "host": ["{{baseUrl}}"], "path": ["v1", "jobs", "executions", "{{jobExecutionId}}"] }
+          }
+        },
+        {
+          "name": "Get Read Batches",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/v1/jobs/executions/{{jobExecutionId}}/read-batches", "host": ["{{baseUrl}}"], "path": ["v1", "jobs", "executions", "{{jobExecutionId}}", "read-batches"] }
+          }
+        },
+        {
+          "name": "Get Write Batches",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/v1/jobs/executions/{{jobExecutionId}}/write-batches", "host": ["{{baseUrl}}"], "path": ["v1", "jobs", "executions", "{{jobExecutionId}}", "write-batches"] }
+          }
+        },
+        {
+          "name": "Get Step Executions (raw)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/v1/jobs/executions/{{jobExecutionId}}/step-executions?batchId=&batchType=",
+              "host": ["{{baseUrl}}"], "path": ["v1", "jobs", "executions", "{{jobExecutionId}}", "step-executions"],
+              "query": [{ "key": "batchId", "value": "" }, { "key": "batchType", "value": "" }]
+            }
+          }
+        },
+        {
+          "name": "Get Step Execution Summary (aggregated)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/v1/jobs/executions/{{jobExecutionId}}/step-executions/summary", "host": ["{{baseUrl}}"], "path": ["v1", "jobs", "executions", "{{jobExecutionId}}", "step-executions", "summary"] }
+          }
+        },
+        {
+          "name": "Manual Retry Batch",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/v1/jobs/executions/{{jobExecutionId}}/batches/{{batchId}}/retry?batchType=WRITE&fromStep=",
+              "host": ["{{baseUrl}}"], "path": ["v1", "jobs", "executions", "{{jobExecutionId}}", "batches", "{{batchId}}", "retry"],
+              "query": [{ "key": "batchType", "value": "WRITE", "description": "READ or WRITE" }, { "key": "fromStep", "value": "" }]
+            }
+          }
+        },
+        {
+          "name": "Get Related Retries",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/v1/jobs/executions/{{jobExecutionId}}/batches/{{batchId}}/retries?batchType=WRITE",
+              "host": ["{{baseUrl}}"], "path": ["v1", "jobs", "executions", "{{jobExecutionId}}", "batches", "{{batchId}}", "retries"],
+              "query": [{ "key": "batchType", "value": "WRITE", "description": "READ or WRITE — defaults to WRITE if omitted" }]
+            }
+          }
+        },
+        {
+          "name": "Search Sync Records (Migration Search)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/v1/jobs/executions/{{jobExecutionId}}/sync-records?recordId=&referenceId=&status=",
+              "host": ["{{baseUrl}}"], "path": ["v1", "jobs", "executions", "{{jobExecutionId}}", "sync-records"],
+              "query": [
+                { "key": "recordId", "value": "" },
+                { "key": "referenceId", "value": "" },
+                { "key": "status", "value": "" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Get Stats",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/v1/dashboard/stats?jobName=&from=&to=",
+              "host": ["{{baseUrl}}"], "path": ["v1", "dashboard", "stats"],
+              "query": [{ "key": "jobName", "value": "" }, { "key": "from", "value": "" }, { "key": "to", "value": "" }]
+            }
+          }
+        },
+        {
+          "name": "Get Top Failed Jobs",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/v1/dashboard/top-failed-jobs?limit=5&from=&to=",
+              "host": ["{{baseUrl}}"], "path": ["v1", "dashboard", "top-failed-jobs"],
+              "query": [{ "key": "limit", "value": "5" }, { "key": "from", "value": "" }, { "key": "to", "value": "" }]
+            }
+          }
+        },
+        {
+          "name": "Get Execution Trends",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/v1/dashboard/execution-trends?jobName=&from=&to=",
+              "host": ["{{baseUrl}}"], "path": ["v1", "dashboard", "execution-trends"],
+              "query": [{ "key": "jobName", "value": "" }, { "key": "from", "value": "" }, { "key": "to", "value": "" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Scheduler (JobRunr)",
+      "item": [
+        {
+          "name": "Get All Scheduled Jobs",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/v1/scheduler/jobs", "host": ["{{baseUrl}}"], "path": ["v1", "scheduler", "jobs"] }
+          }
+        },
+        {
+          "name": "Get Scheduled Job By Name",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/v1/scheduler/jobs/{{jobName}}", "host": ["{{baseUrl}}"], "path": ["v1", "scheduler", "jobs", "{{jobName}}"] }
+          }
+        },
+        {
+          "name": "Run Job Now (via JobRunr)",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/v1/scheduler/jobs/{{jobName}}/run-now", "host": ["{{baseUrl}}"], "path": ["v1", "scheduler", "jobs", "{{jobName}}", "run-now"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Audit",
+      "item": [
+        {
+          "name": "Search Audit History",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/v1/audit?jobName=&userId=&action=&from=&to=&page=0&size=20&sortBy=timestamp&sortDirection=DESC",
+              "host": ["{{baseUrl}}"], "path": ["v1", "audit"],
+              "query": [
+                { "key": "jobName", "value": "" },
+                { "key": "userId", "value": "" },
+                { "key": "action", "value": "", "description": "CONFIG_CREATED | CONFIG_UPDATED | JOB_ENABLED | JOB_DISABLED | CRON_CHANGED | MANUAL_EXECUTION" },
+                { "key": "from", "value": "" },
+                { "key": "to", "value": "" },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" },
+                { "key": "sortBy", "value": "timestamp" },
+                { "key": "sortDirection", "value": "DESC" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Audit History By Job",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/v1/audit/job/{{jobName}}?page=0&size=20",
+              "host": ["{{baseUrl}}"], "path": ["v1", "audit", "job", "{{jobName}}"],
+              "query": [{ "key": "page", "value": "0" }, { "key": "size", "value": "20" }]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
